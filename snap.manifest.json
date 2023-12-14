@@ -1,0 +1,35 @@
+{
+  "version": "0.1.0",
+  "description": "An example of FIO Snap",
+  "proposedName": "FIO Snap Example",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MetaMask/template-snap-monorepo.git"
+  },
+  "source": {
+    "shasum": "MkT7xJZAOBRxCJZYX06eEizvzh5Gnij7xNxAoMb3mb4=",
+    "location": {
+      "npm": {
+        "filePath": "dist/bundle.js",
+        "iconPath": "images/icon.svg",
+        "packageName": "snap",
+        "registry": "https://registry.npmjs.org/"
+      }
+    }
+  },
+  "initialPermissions": {
+    "snap_dialog": {},
+    "snap_manageState": {},
+    "snap_getBip44Entropy": [
+      {
+        "coinType": 235
+      }
+    ],
+    "endowment:rpc": {
+      "dapps": true,
+      "snaps": false
+    },
+    "endowment:network-access": {}
+  },
+  "manifestVersion": "0.1"
+}
