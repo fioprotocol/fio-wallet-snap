@@ -37,7 +37,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const fioPubKey = await getPublicKey();
       const privBuffer = await getPrivateKeyBuffer();
 
-      const { action, apiUrl, contract, data } = requestParams;
+      const { action, actor, apiUrl, contract, data } = requestParams;
 
       const info = await (await fetch(`${apiUrl}/v1/chain/get_info`)).json();
       const blockInfo = await (
@@ -64,11 +64,14 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
             name: action,
             authorization: [
               {
-                actor: account,
+                actor: actor || account,
                 permission: 'active',
               },
             ],
-            data,
+            data: {
+              ...data,
+              actor: account,
+            },
           },
         ],
       };
@@ -87,10 +90,10 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       );
 
       // Get the addaddress action type
-      let actionAddaddress = typesFioAddress.get('addaddress');
+      let fioAction = typesFioAddress.get(action);
 
       const buffer = new SerialBuffer({ textEncoder, textDecoder });
-      actionAddaddress.serialize(buffer, transaction.actions[0].data);
+      fioAction.serialize(buffer, transaction.actions[0].data);
       const serializedData = arrayToHex(buffer.asUint8Array());
 
       let serializedAction = transaction.actions[0];
@@ -112,7 +115,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       );
 
       // Get the transaction action type
-      let txnaction = typesTransaction.get('transaction');
+      let txnAction = typesTransaction.get('transaction');
 
       const rawTransaction = {
         ...transaction,
@@ -120,13 +123,13 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         max_cpu_usage_ms: 0,
         delay_sec: 0,
         context_free_actions: [],
-        actions: [serializedAction], //Actions have to be an array
+        actions: [serializedAction], // Actions have to be an array
         transaction_extensions: [],
       };
 
       // Serialize the transaction
       const buffer2 = new SerialBuffer({ textEncoder, textDecoder });
-      txnaction.serialize(buffer2, rawTransaction);
+      txnAction.serialize(buffer2, rawTransaction);
       const serializedTransaction = buffer2.asUint8Array();
 
       const signedTxnSignatures = await signTx({
@@ -157,12 +160,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       //   console.log('Error: ', jsonResult);
       // }
 
-      return {
-        account,
-        chainId,
-        txn,
-        // jsonResult,
-      };
+      return txn;
+
       return snap.request({
         method: 'snap_dialog',
         params: {
