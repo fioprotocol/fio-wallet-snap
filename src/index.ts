@@ -37,7 +37,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const fioPubKey = await getPublicKey();
       const privBuffer = await getPrivateKeyBuffer();
 
-      const { action, actor, apiUrl, contract, data } = requestParams;
+      const { action, authActor, apiUrl, account, data, dataActor } =
+        requestParams;
 
       const info = await (await fetch(`${apiUrl}/v1/chain/get_info`)).json();
       const blockInfo = await (
@@ -52,7 +53,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const timeInISOString = new Date(timePlusTen).toISOString();
       const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
-      const account = accountHash(fioPubKey);
+      const userAccount = accountHash(fioPubKey);
 
       const transaction = {
         expiration,
@@ -60,17 +61,17 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         ref_block_prefix: blockInfo.ref_block_prefix,
         actions: [
           {
-            account: contract,
+            account,
             name: action,
             authorization: [
               {
-                actor: actor || account,
+                actor: authActor || userAccount,
                 permission: 'active',
               },
             ],
             data: {
               ...data,
-              actor: account,
+              actor: dataActor || userAccount,
             },
           },
         ],
@@ -78,7 +79,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
 
       const abiFioAddress = await (
         await fetch(`${apiUrl}/v1/chain/get_abi`, {
-          body: `{"account_name": ${contract}}`,
+          body: `{"account_name": ${account}}`,
           method: 'POST',
         })
       ).json();
