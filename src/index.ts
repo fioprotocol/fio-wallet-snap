@@ -1,6 +1,7 @@
 import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
-import { panel, text } from '@metamask/snaps-sdk';
+import { divider, panel, text, heading } from '@metamask/snaps-sdk';
 
+import { FIO_TRANSACTION_ACTION_NAMES } from './constants';
 import { signTx } from './utils/chain-jssig';
 import { arrayToHex } from './utils/chain-numeric';
 import {
@@ -8,6 +9,7 @@ import {
   createInitialTypes,
   SerialBuffer,
 } from './utils/chain-serialize';
+import { getCipherContent } from './utils/ecc/ecnrypt-fio';
 import { accountHash } from './utils/general';
 import { getPrivateKeyBuffer, getPublicKey } from './utils/getKeys';
 
@@ -37,8 +39,31 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       const fioPubKey = await getPublicKey();
       const privBuffer = await getPrivateKeyBuffer();
 
-      const { action, authActor, apiUrl, account, data, dataActor } =
-        requestParams;
+      const {
+        action,
+        authActor,
+        apiUrl,
+        account,
+        contentType,
+        data,
+        dataActor,
+      } = requestParams;
+
+      const confirmResult = await snap.request({
+        method: 'snap_dialog',
+        params: {
+          type: 'confirmation',
+          content: panel([
+            heading(`Sign transaction`),
+            divider(),
+            ...Object.entries(data).map(([key, value]) => text(`${key}: ${value}`)),
+          ]),
+        },
+      });
+
+      if (!confirmResult) {
+        throw new Error('Sign transaction cacneled');
+      }
 
       const info = await (await fetch(`${apiUrl}/v1/chain/get_info`)).json();
       const blockInfo = await (
@@ -76,6 +101,19 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
           },
         ],
       };
+
+      if (
+        (action === FIO_TRANSACTION_ACTION_NAMES.newfundsreq ||
+          action === FIO_TRANSACTION_ACTION_NAMES.recordobt) &&
+        data.content &&
+        contentType
+      ) {
+        transaction.actions[0].data.content = getCipherContent({
+          content: data.content,
+          fioContentType: contentType,
+          privateKeyBuffer: privBuffer.slice(1),
+        });
+      }
 
       const abiFioAddress = await (
         await fetch(`${apiUrl}/v1/chain/get_abi`, {
@@ -146,36 +184,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         packed_trx: arrayToHex(serializedTransaction),
       };
 
-      // const pushResult = await fetch(apiUrl + '/v1/chain/push_transaction', {
-      //   body: JSON.stringify(txn),
-      //   method: 'POST',
-      // });
-
-      // const jsonResult = await pushResult.json();
-
-      // if (jsonResult.transaction_id) {
-      //   console.log('Success. \nTransaction: ', jsonResult);
-      // } else if (jsonResult.code) {
-      //   console.log('Error: ', jsonResult.error);
-      // } else {
-      //   console.log('Error: ', jsonResult);
-      // }
-
       return txn;
-
-      return snap.request({
-        method: 'snap_dialog',
-        params: {
-          type: 'confirmation',
-          content: panel([
-            text(`Hello, **${origin}**!`),
-            text('This custom confirmation is just for display purposes.'),
-            text(
-              'But you can edit the snap source code to make it do something, if you want to!',
-            ),
-          ]),
-        },
-      });
     }
     default:
       throw new Error('Method not found.');
