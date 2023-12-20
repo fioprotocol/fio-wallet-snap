@@ -1,6 +1,6 @@
 {
   "name": "fio-wallet-snap-test",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "The 'Hello, world!' of MetaMask Snaps, now written in TypeScript.",
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
     "@metamask/snaps-sdk": "1.2.0",
     "bigi": "1.4.2",
     "bip39": "3.1.0",
+    "browserify-aes": "1.2.0",
     "bs58": "5.0.0",
     "buffer": "6.0.3",
     "create-hash": "1.2.0",
@@ -38,6 +39,7 @@
     "ecurve": "1.0.6",
     "hdkey": "2.1.0",
     "long": "5.2.3",
+    "randombytes": "2.1.0",
     "text-encoding": "0.7.0"
   },
   "devDependencies": {
