@@ -49,14 +49,26 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         dataActor,
       } = requestParams;
 
+      const mapEntries = (data: any) => {
+        return Object.entries(data).map(([key, value]) => {
+          if (typeof value === 'object') {
+            return text(`${key}: ${JSON.stringify(value)}`);
+          } else {
+            return text(`${key}: ${value}`);
+          }
+        });
+      }
+
       const confirmResult = await snap.request({
         method: 'snap_dialog',
         params: {
           type: 'confirmation',
           content: panel([
-            heading(`Sign transaction`),
+            heading(`Sign transaction!`),
             divider(),
-            ...Object.entries(data).map(([key, value]) => text(`${key}: ${value}`)),
+            text(`Transaction name: **${action}**`),
+            divider(),
+            ...mapEntries(data),
           ]),
         },
       });
