@@ -2,7 +2,7 @@ import type { BIP44Node } from '@metamask/key-tree';
 import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 import base58 from 'bs58';
 
-import { ripemd160 } from './ecc/hash';
+import { ripemd160 } from './encrypt/hash';
 
 const getDerivedAddress = async (): Promise<BIP44Node> => {
   const fioNode = await snap.request({

@@ -5,14 +5,14 @@ import {
   DEFAULT_TIMEOUT_OFFSET,
   FIO_TRANSACTION_ACTION_NAMES,
 } from './constants';
-import { signTx } from './utils/chain-jssig';
-import { arrayToHex } from './utils/chain-numeric';
+import { signTx } from './utils/chain/chain-jssig';
+import { arrayToHex } from './utils/chain/chain-numeric';
 import {
   getTypesFromAbi,
   createInitialTypes,
   SerialBuffer,
-} from './utils/chain-serialize';
-import { getCipherContent } from './utils/ecc/ecnrypt-fio';
+} from './utils/chain/chain-serialize';
+import { getCipherContent } from './utils/encrypt/ecnrypt-fio';
 import { accountHash } from './utils/general';
 import { getPrivateKeyBuffer, getPublicKey } from './utils/getKeys';
 

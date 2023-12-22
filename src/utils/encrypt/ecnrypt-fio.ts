@@ -4,14 +4,13 @@ import { Buffer } from 'buffer';
 import { getCurveByName, Point } from 'ecurve';
 import randomBytes from 'randombytes';
 
-import { sha512, HmacSHA256 } from './hash';
-import { checkDecode } from './key_utils';
-
 import {
   createInitialTypes,
   getTypesFromAbi,
   SerialBuffer,
-} from '../chain-serialize';
+} from '../chain/chain-serialize';
+import { sha512, HmacSHA256 } from './hash';
+import { checkDecode } from './key_utils';
 
 import fioAbi from '../../abi/encryption-fio.abi.json';
 import { FIO_CHAIN_NAME } from '../../constants';
