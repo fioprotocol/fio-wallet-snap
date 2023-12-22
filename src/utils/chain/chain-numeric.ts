@@ -3,7 +3,7 @@
  */
 // copyright defined in fiojs/LICENSE.txt
 
-const ripemd160 = require('./ripemd').RIPEMD160.hash as (a: Uint8Array) => ArrayBuffer;
+const ripemd160 = require('../ripemd').RIPEMD160.hash as (a: Uint8Array) => ArrayBuffer;
 
 const base58Chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
 const base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';

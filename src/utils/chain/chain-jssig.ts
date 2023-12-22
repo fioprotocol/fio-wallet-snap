@@ -6,16 +6,13 @@
 // eslint-disable-next-line import/no-nodejs-modules
 import { Buffer } from 'buffer';
 
+import { signChainTx } from '../encrypt/signature';
 import type {
   SignatureProvider,
   SignatureProviderArgs,
 } from './chain-api-interfaces';
-import { signChainTx } from './ecc/signature';
-
-// const ecc = require('./ecc');
 
 /** Signs transactions using in-process private keys */
-// export class JsSignatureProvider implements SignatureProvider {
 
 /** Sign a transaction */
 

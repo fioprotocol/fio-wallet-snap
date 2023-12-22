@@ -1,18 +1,4 @@
 module.exports = {
-  extends: ['../../.eslintrc.js'],
-
-  parserOptions: {
-    tsconfigRootDir: __dirname,
-  },
-
-  overrides: [
-    
-  ],
-
-  ignorePatterns: ['!.eslintrc.js', 'dist/'],
-};
-
-module.exports = {
   root: true,
 
   parserOptions: {
@@ -42,7 +28,6 @@ module.exports = {
         ],
       },
     },
-    
     {
       files: ['*.test.ts'],
       rules: {
@@ -61,4 +46,3 @@ module.exports = {
     '.cache',
   ],
 };
-

@@ -4,8 +4,8 @@ import { Buffer } from 'buffer';
 import ecurve from 'ecurve';
 
 import { ecdsaSign, calcPubKeyRecoveryParam } from './ecdsa';
-import hash from './hash';
-import keyUtils from './key_utils';
+import { sha256 } from './hash';
+import { checkEncode } from './key_utils';
 
 const curve = ecurve.getCurveByName('secp256k1');
 
@@ -14,16 +14,16 @@ const signature = (r: any, s: any, i: any): any => {
   assert.equal(s != null, true, 'Missing parameter');
   assert.equal(i != null, true, 'Missing parameter');
 
-  function toBuffer() {
+  const toBuffer = () => {
     let buf;
     buf = Buffer.alloc(65);
     buf.writeUInt8(i, 0);
     r.toBuffer(32).copy(buf, 1);
     s.toBuffer(32).copy(buf, 33);
     return buf;
-  }
+  };
 
-  const signatureCache = `SIG_K1_${keyUtils.checkEncode(toBuffer(), 'K1')}`;
+  const signatureCache = `SIG_K1_${checkEncode(toBuffer(), 'K1')}`;
   return signatureCache;
 };
 
@@ -95,6 +95,6 @@ export const signChainTx = ({ data, encoding = 'utf8', privateKeyBuffer }: any):
     data = Buffer.from(data, encoding);
   }
   assert(Buffer.isBuffer(data), 'data is a required String or Buffer');
-  data = hash.sha256(data);
+  data = sha256(data);
   return signHash({ dataSha256: data, privateKeyBuffer });
 };

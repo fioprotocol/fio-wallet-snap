@@ -1,16 +1,19 @@
 import bs58 from 'bs58';
 import Long from 'long';
 
+import { FIO_CHAIN_NAME } from '../constants';
+
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
  *
  * invoked the snap.
+ *
  * @param pubkey - Users public key to get an account name.
  * @returns The result of `snap_dialog`.
  * @throws If the request method is not valid for this snap.
  */
 export function accountHash(pubkey: string): any {
-  const updPubkey = pubkey.substring('FIO'.length, pubkey.length);
+  const updPubkey = pubkey.substring(FIO_CHAIN_NAME.length, pubkey.length);
 
   const decoded58 = bs58.decode(updPubkey);
   const long = shortenKey(decoded58);
@@ -21,6 +24,7 @@ export function accountHash(pubkey: string): any {
 
 /**
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
+ *
  * @param key - This is a key as number.
  * @returns Result of function.
  * @throws If the request method is not valid for this snap.
@@ -58,6 +62,7 @@ function shortenKey(key: Uint8Array): any {
  * Handle incoming JSON-RPC requests, sent through `wallet_invokeSnap`.
  *
  * invoked the snap.
+ *
  * @param temp - Some param.
  * @returns The result of `snap_dialog`.
  * @throws If the request method is not valid for this snap.
