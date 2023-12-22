@@ -47,6 +47,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         contentType,
         data,
         dataActor,
+        payerFioPublicKey,
       } = requestParams;
 
       const mapEntries = (data: any) => {
@@ -114,16 +115,29 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         ],
       };
 
-      if (
-        (action === FIO_TRANSACTION_ACTION_NAMES.newfundsreq ||
-          action === FIO_TRANSACTION_ACTION_NAMES.recordobt) &&
-        data.content &&
-        contentType
-      ) {
-        transaction.actions[0].data.content = getCipherContent({
+      if (action === FIO_TRANSACTION_ACTION_NAMES.newfundsreq) {
+        if (!data.content) throw new Error('Missing content parameter');
+        if (!contentType) throw new Error('Missing FIO content type');
+        if (!payerFioPublicKey) throw new Error('Missing payer public key');
+
+        transaction.actions[0].data.content = await getCipherContent({
           content: data.content,
           fioContentType: contentType,
           privateKeyBuffer: privBuffer.slice(1),
+          encryptionPublicKey: payerFioPublicKey,
+        });
+      }
+
+      if (action === FIO_TRANSACTION_ACTION_NAMES.recordobt) {
+        if (!data.content) throw new Error('Missing content parameter');
+        if (!contentType) throw new Error('Missing FIO content type');
+        if (!data.content.payee_public_address) throw new Error('Missing payee public key');
+
+        transaction.actions[0].data.content = await getCipherContent({
+          content: data.content,
+          fioContentType: contentType,
+          privateKeyBuffer: privBuffer.slice(1),
+          encryptionPublicKey: data.content.payee_public_address,
         });
       }
 
@@ -141,7 +155,7 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       );
 
       // Get the addaddress action type
-      let fioAction = typesFioAddress.get(action);
+      const fioAction = typesFioAddress.get(action);
 
       const buffer = new SerialBuffer({ textEncoder, textDecoder });
       fioAction.serialize(buffer, transaction.actions[0].data);

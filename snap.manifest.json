@@ -1,5 +1,5 @@
 {
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "An example of FIO Snap",
   "proposedName": "FIO Wallet Test",
   "repository": {
@@ -7,7 +7,7 @@
     "url": "https://github.com/fioprotocol/fio-wallet-snap.git"
   },
   "source": {
-    "shasum": "6MJi2W7peUBct03FXzNfbSAI75DcXWgXllNPuctYY8Y=",
+    "shasum": "Di7ipibTa7bqM0CXY3b0kOlk1meea9J2GMDi+b1P9ew=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
