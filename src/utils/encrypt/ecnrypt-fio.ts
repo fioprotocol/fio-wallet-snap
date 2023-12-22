@@ -113,7 +113,6 @@ export const getCipherContent = async ({
 }: {
   fioContentType: string;
   content: any;
-  publicKey: string;
   privateKeyBuffer: Buffer;
   encryptionPublicKey: string;
 }): Promise<string> => {
