@@ -1,7 +1,10 @@
 import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
 import { divider, panel, text, heading } from '@metamask/snaps-sdk';
 
-import { FIO_TRANSACTION_ACTION_NAMES } from './constants';
+import {
+  DEFAULT_TIMEOUT_OFFSET,
+  FIO_TRANSACTION_ACTION_NAMES,
+} from './constants';
 import { signTx } from './utils/chain-jssig';
 import { arrayToHex } from './utils/chain-numeric';
 import {
@@ -48,17 +51,17 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
         data,
         dataActor,
         payerFioPublicKey,
+        timeoutOffset = DEFAULT_TIMEOUT_OFFSET,
       } = requestParams;
 
       const mapEntries = (data: any) => {
         return Object.entries(data).map(([key, value]) => {
           if (typeof value === 'object') {
             return text(`${key}: ${JSON.stringify(value)}`);
-          } else {
-            return text(`${key}: ${value}`);
           }
+          return text(`${key}: ${value}`);
         });
-      }
+      };
 
       const confirmResult = await snap.request({
         method: 'snap_dialog',
@@ -87,8 +90,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       ).json();
       const chainId = info.chain_id;
       const currentDate = new Date();
-      const timePlusTen = currentDate.getTime() + 10000;
-      const timeInISOString = new Date(timePlusTen).toISOString();
+      const timePlusTimeout = currentDate.getTime() + timeoutOffset;
+      const timeInISOString = new Date(timePlusTimeout).toISOString();
       const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
 
       const userAccount = accountHash(fioPubKey);
@@ -131,7 +134,8 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
       if (action === FIO_TRANSACTION_ACTION_NAMES.recordobt) {
         if (!data.content) throw new Error('Missing content parameter');
         if (!contentType) throw new Error('Missing FIO content type');
-        if (!data.content.payee_public_address) throw new Error('Missing payee public key');
+        if (!data.content.payee_public_address)
+          throw new Error('Missing payee public key');
 
         transaction.actions[0].data.content = await getCipherContent({
           content: data.content,

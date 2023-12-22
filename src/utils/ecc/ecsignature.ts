@@ -1,33 +1,31 @@
-var assert = require('assert') // from https://github.com/bitcoinjs/bitcoinjs-lib
-var enforceType = require('./enforce_types')
+import BigInteger from 'bigi';
+import { Buffer } from 'buffer';
 
-var BigInteger = require('bigi')
+import { enforceType } from './enforce_types';
 
-function ECSignature(r, s) {
-  enforceType(BigInteger, r)
-  enforceType(BigInteger, s)
+export const ECSignature = (r, s) => {
+  enforceType(BigInteger, r);
+  enforceType(BigInteger, s);
 
-  function toDER() {
-    var rBa = r.toDERInteger()
-    var sBa = s.toDERInteger()
+  const toDER = () => {
+    const rBa = r.toDERInteger();
+    const sBa = s.toDERInteger();
 
-    var sequence = []
-
-    // INTEGER
-    sequence.push(0x02, rBa.length)
-    sequence = sequence.concat(rBa)
+    let sequence = [];
 
     // INTEGER
-    sequence.push(0x02, sBa.length)
-    sequence = sequence.concat(sBa)
+    sequence.push(0x02, rBa.length);
+    sequence = sequence.concat(rBa);
+
+    // INTEGER
+    sequence.push(0x02, sBa.length);
+    sequence = sequence.concat(sBa);
 
     // SEQUENCE
-    sequence.unshift(0x30, sequence.length)
+    sequence.unshift(0x30, sequence.length);
 
-    return Buffer.from(sequence)
-  }
+    return Buffer.from(sequence);
+  };
 
-  return { r, s, toDER }
-}
-
-module.exports = ECSignature
+  return { r, s, toDER };
+};
