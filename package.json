@@ -1,7 +1,7 @@
 {
   "name": "fio-wallet-snap-test",
-  "version": "0.1.4",
-  "description": "The 'Hello, world!' of MetaMask Snaps, now written in TypeScript.",
+  "version": "0.1.5",
+  "description": "FIO Wallet MetaMask Snap",
   "repository": {
     "type": "git",
     "url": "https://github.com/fioprotocol/fio-wallet-snap.git"
