@@ -6,13 +6,17 @@ import createHmac from 'create-hmac';
 import { getCurveByName, Point } from 'ecurve';
 import randomBytes from 'randombytes';
 
-import fioAbi from '../../abi/encryption-fio.abi.json';
+import hash from './hash';
+import { checkDecode } from './key_utils';
+
 import {
   createInitialTypes,
   getTypesFromAbi,
   SerialBuffer,
 } from '../chain-serialize';
-import hash from './hash';
+
+import fioAbi from '../../abi/encryption-fio.abi.json';
+import { FIO_CHAIN_NAME } from '../../constants';
 
 const curve = getCurveByName('secp256k1');
 
@@ -21,11 +25,11 @@ const textEncoder = new TextEncoder();
 
 const fioTypes = getTypesFromAbi(createInitialTypes(), fioAbi);
 
-const serialize = (
+function serialize(
   serialBuffer: SerialBuffer,
   type: string,
   value: any,
-): void => {
+): void {
   fioTypes.get(type).serialize(serialBuffer, value);
 };
 
@@ -37,8 +41,8 @@ const checkEncrypt = ({
   message: Buffer;
 }): Buffer => {
   const K = createHash('sha512').update(secret).digest();
-  const Ke = K.slice(0, 32); // Encryption
-  const Km = K.slice(32); // MAC
+  const Ke = K.subarray(0, 32); // Encryption
+  const Km = K.subarray(32); // MAC
   const IV = randomBytes(16);
 
   // Cipher performs PKCS#5 padded automatically
@@ -59,11 +63,18 @@ const checkEncrypt = ({
  * @returns {Buffer} 64 byte shared secret
  */
 
-const getSharedSecret = ({ privateKeyInt }: { privateKeyInt: BigInteger }) => {
-  const publicKeyCurve = curve.G.multiply(privateKeyInt);
-  const bufPubKeyCurve = publicKeyCurve.getEncoded(false);
-  const point = Point.decodeFrom(curve, bufPubKeyCurve); // toUncompressed
-  const KB = point.getEncoded(point.compressed);
+const getSharedSecret = async ({ privateKeyInt, encryptionPublicKey }: { privateKeyInt: BigInteger; encryptionPublicKey: string }) => {
+  const prefixMatch = new RegExp("^" + FIO_CHAIN_NAME);
+  if (prefixMatch.test(encryptionPublicKey)) {
+    encryptionPublicKey = encryptionPublicKey.substring(FIO_CHAIN_NAME.length)
+  }
+
+  const encryptionPublicKeyBuffer = checkDecode(encryptionPublicKey);
+  const encryptionPublicKeyPoint = Point.decodeFrom(curve, encryptionPublicKeyBuffer);
+  const encryptionPublicKeyBufferCurve = encryptionPublicKeyPoint.getEncoded(false);
+  const uncompressedEncryptionPublicKeyPoint = Point.decodeFrom(curve, encryptionPublicKeyBufferCurve); // Convert to uncompressed
+
+  const KB = uncompressedEncryptionPublicKeyPoint.getEncoded(uncompressedEncryptionPublicKeyPoint.compressed);
 
   const KBP = Point.fromAffine(
     curve,
@@ -72,7 +83,7 @@ const getSharedSecret = ({ privateKeyInt }: { privateKeyInt: BigInteger }) => {
   );
   const r = privateKeyInt.toBuffer(32);
   const P = KBP.multiply(BigInteger.fromBuffer(r));
-  const S = P.affineX.toBuffer({ size: 32 });
+  const S = P.affineX.toBuffer(32);
   // SHA512 used in ECIES
   return hash.sha512(S);
 };
@@ -89,31 +100,30 @@ const getSharedSecret = ({ privateKeyInt }: { privateKeyInt: BigInteger }) => {
  * @returns {string} cipher base64
  */
 
-export const getCipherContent = ({
+export const getCipherContent = async ({
   fioContentType,
   content,
   privateKeyBuffer,
+  encryptionPublicKey,
 }: {
   fioContentType: string;
   content: any;
   publicKey: string;
   privateKeyBuffer: Buffer;
-}): string => {
-  console.log('fioContentType', fioContentType);
-  console.log('content', content);
+  encryptionPublicKey: string;
+}): Promise<string> => {
   const buffer = new SerialBuffer({
     textEncoder,
     textDecoder,
   });
-  console.log('buffer', buffer);
   const privateKeyInt = BigInteger.fromBuffer(privateKeyBuffer);
-  const sharedSecret = getSharedSecret({ privateKeyInt });
-  console.log('sharedSecret', sharedSecret);
+  
+  const sharedSecret = await getSharedSecret({ privateKeyInt, encryptionPublicKey });
+
   serialize(buffer, fioContentType, content);
+
   const message = Buffer.from(buffer.asUint8Array());
-  console.log('message', message);
+
   const cipherbuffer = checkEncrypt({ secret: sharedSecret, message });
-  console.log('cipherbuffer', cipherbuffer);
-  console.log('cipher', cipherbuffer.toString('base64'));
   return cipherbuffer.toString('base64');
 };

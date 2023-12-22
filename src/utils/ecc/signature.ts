@@ -46,7 +46,7 @@ const signHash = ({ dataSha256, encoding = 'hex', privateKeyBuffer }: any): any 
 
   const ptivateKeyInt = BigInteger.fromBuffer(privateKeyBuffer);
   const publicKeyCurve = curve.G.multiply(ptivateKeyInt);
- 
+
   let der, e, ecsignature, i, lenR, lenS, nonce;
   i = null;
   nonce = 0;
