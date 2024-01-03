@@ -2,6 +2,7 @@ import { divider, panel, text, heading } from '@metamask/snaps-sdk';
 
 import {
   DEFAULT_TIMEOUT_OFFSET,
+  FIO_ENVIRONMENT_CHAIN_NAMES,
   FIO_TRANSACTION_ACTION_NAMES,
 } from '../../constants';
 import { getChainInfo } from '../chain/chain-get-info';
@@ -44,6 +45,15 @@ export const signTransaction = async ({
     timeoutOffset = DEFAULT_TIMEOUT_OFFSET,
   } = requestParams;
 
+  const chainInfo = await getChainInfo({ apiUrl });
+
+  const chainId = chainInfo.info.chain_id;
+  const chainName = FIO_ENVIRONMENT_CHAIN_NAMES[chainId];
+
+  if (!chainId || !chainName) {
+    throw new Error('Cannot identify FIO chain');
+  }
+
   const mapEntries = (data: any) => {
     return Object.entries(data).map(([key, value]) => {
       if (typeof value === 'object') {
@@ -62,6 +72,8 @@ export const signTransaction = async ({
         divider(),
         text(`Transaction name: **${action}**`),
         divider(),
+        text(`Chain name: ${chainName}`),
+        divider(),
         ...mapEntries(data),
       ]),
     },
@@ -70,9 +82,6 @@ export const signTransaction = async ({
   if (!confirmResult) {
     throw new Error('Sign transaction cacneled');
   }
-
-  const chainInfo = await getChainInfo({ apiUrl });
-  const chainId = chainInfo.info.chain_id;
 
   const transaction = await createTransaction({
     account,
