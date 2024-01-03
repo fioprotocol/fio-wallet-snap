@@ -3,10 +3,12 @@
  */
 // copyright defined in fiojs/LICENSE.txt
 
-const ripemd160 = require('../ripemd').RIPEMD160.hash as (a: Uint8Array) => ArrayBuffer;
+import { ripemd160 } from '../encrypt/hash';
 
-const base58Chars = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-const base64Chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+const base58Chars =
+  '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
+const base64Chars =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
 function create_base58_map() {
   const base58M = Array(256).fill(-1) as number[];
