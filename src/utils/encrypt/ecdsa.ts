@@ -1,17 +1,23 @@
 import assert from 'assert';
 import BigInteger from 'bigi';
+import { Curve, Point } from 'ecurve';
 
 import { ECSignature } from './ecsignature';
 import { enforceType } from './enforce_types';
 import { HmacSHA256, sha256 } from './hash';
+import { ECSignatureType } from '../../types';
 
 // https://tools.ietf.org/html/rfc6979#section-3.2
-const deterministicGenerateK = (curve, hash, d, checkSig, nonce) => {
+const deterministicGenerateK = (
+  { curve, hash, d, checkSig, nonce }:
+  { curve: Curve; hash: Buffer; d: BigInteger; checkSig: (k: BigInteger) => boolean; nonce: number }
+) => {
   enforceType('Buffer', hash);
   enforceType(BigInteger, d);
 
   if (nonce) {
-    hash = sha256(Buffer.concat([hash, Buffer.alloc(nonce)]));
+    const concatHash = sha256(Buffer.concat([hash, Buffer.alloc(nonce)]));
+    hash = Buffer.isBuffer(concatHash) ? concatHash : Buffer.from(concatHash);
   }
 
   // sanity check
@@ -46,7 +52,7 @@ const deterministicGenerateK = (curve, hash, d, checkSig, nonce) => {
   let T = BigInteger.fromBuffer(v);
 
   // Step H3, repeat until T is within the interval [1, n - 1]
-  while (T.signum() <= 0 || T.compareTo(curve.n) >= 0 || !checkSig(T)) {
+  while ((T.signum() as unknown) as number <= 0 || T.compareTo(curve.n) >= 0 || !checkSig(T)) {
     k = HmacSHA256(Buffer.concat([v, Buffer.from([0])]), k);
     v = HmacSHA256(v, k);
 
@@ -60,16 +66,16 @@ const deterministicGenerateK = (curve, hash, d, checkSig, nonce) => {
   return T;
 };
 
-export const ecdsaSign = ({ curve, hash, d, nonce }) => {
-  const e = BigInteger.fromBuffer(hash);
+export const ecdsaSign = ({ curve, hash, d, nonce }: { curve: Curve; hash: Buffer; d: BigInteger; nonce: number }): ECSignatureType => {
+  const e: BigInteger = BigInteger.fromBuffer(hash);
   const { n, G } = curve;
 
-  let r, s;
-  const k = deterministicGenerateK(
+  let r: BigInteger = BigInteger.ZERO, s: BigInteger = BigInteger.ZERO;
+  const k: BigInteger = deterministicGenerateK({
     curve,
     hash,
     d,
-    function (k) {
+    checkSig: function (k: BigInteger) {
       // find canonically valid signature
       const Q = G.multiply(k);
 
@@ -78,7 +84,7 @@ export const ecdsaSign = ({ curve, hash, d, nonce }) => {
       }
 
       r = Q.affineX.mod(n);
-      if (r.signum() === 0) {
+      if ((r.signum() as unknown) as number === 0) {
         return false;
       }
 
@@ -86,13 +92,14 @@ export const ecdsaSign = ({ curve, hash, d, nonce }) => {
         .modInverse(n)
         .multiply(e.add(d.multiply(r)))
         .mod(n);
-      if (s.signum() === 0) {
+      if ((s.signum() as unknown) as number === 0) {
         return false;
       }
 
       return true;
     },
     nonce,
+  }
   );
 
   const N_OVER_TWO = n.shiftRight(1);
@@ -105,6 +112,7 @@ export const ecdsaSign = ({ curve, hash, d, nonce }) => {
   return ECSignature(r, s);
 };
 
+
 /**
  * Recover a public key from a signature.
  *
@@ -113,16 +121,16 @@ export const ecdsaSign = ({ curve, hash, d, nonce }) => {
  *
  * http://www.secg.org/download/aid-780/sec1-v2.pdf
  */
-const recoverPubKey = ({ curve, e, signature, i }) => {
+const recoverPubKey = ({ curve, e, signature, i }: { curve: Curve; e: BigInteger; signature: ECSignatureType; i: number }) => {
   assert.strictEqual(i & 3, i, 'Recovery param is more than two bits');
   const { n, G } = curve;
   const { r, s } = signature;
 
-  assert(r.signum() > 0 && r.compareTo(n) < 0, 'Invalid r value');
-  assert(s.signum() > 0 && s.compareTo(n) < 0, 'Invalid s value');
+  assert((r.signum() as unknown) as number > 0 && r.compareTo(n) < 0, 'Invalid r value');
+  assert((s.signum() as unknown) as number > 0 && s.compareTo(n) < 0, 'Invalid s value');
 
   // A set LSB signifies that the y-coordinate is odd
-  const isYOdd = i & 1;
+  const isYOdd: boolean = !!(i & 1);
 
   // The more significant bit specifies whether we should use the
   // first or second candidate key.
@@ -130,7 +138,7 @@ const recoverPubKey = ({ curve, e, signature, i }) => {
 
   // 1.1 Let x = r + jn
   const x = isSecondKey ? r.add(n) : r;
-  const R = curve.pointFromX(isYOdd, x);
+  const R = curve.pointFromX(isYOdd, (x as unknown) as Point);
 
   // 1.4 Check that nR is at infinity
   const nR = R.multiply(n);
@@ -160,7 +168,7 @@ const recoverPubKey = ({ curve, e, signature, i }) => {
  * This function simply tries all four cases and returns the value
  * that resulted in a successful pubkey recovery.
  */
-export const calcPubKeyRecoveryParam = ({ curve, e, signature, Q }) => {
+export const calcPubKeyRecoveryParam = ({ curve, e, signature, Q }: { curve: Curve; e: BigInteger; signature: ECSignatureType; Q: Point }) => {
   for (let i = 0; i < 4; i++) {
     const Qprime = recoverPubKey({ curve, e, signature, i });
 

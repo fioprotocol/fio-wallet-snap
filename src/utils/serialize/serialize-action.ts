@@ -1,3 +1,4 @@
+import { Transaction, TransactionAction } from '../../types';
 import {
   SerialBuffer,
   arrayToHex,
@@ -17,8 +18,8 @@ export const serializeAction = async ({
   account: string;
   action: string;
   apiUrl: string;
-  transaction: any;
-}) => {
+  transaction: Transaction;
+  }): Promise<TransactionAction | null> => {
   const abiFioAddress = await (
     await fetch(`${apiUrl}/v1/chain/get_abi`, {
       body: `{"account_name": ${account}}`,
@@ -36,14 +37,18 @@ export const serializeAction = async ({
   const fioAction = typesFioAddress.get(action);
 
   const buffer = new SerialBuffer({ textEncoder, textDecoder });
-  fioAction.serialize(buffer, transaction.actions[0].data);
+  fioAction && fioAction.serialize(buffer, transaction.actions[0]?.data);
   const serializedData = arrayToHex(buffer.asUint8Array());
 
-  let serializedAction = transaction.actions[0];
-  serializedAction = {
-    ...serializedAction,
-    data: serializedData,
-  };
+  if (!transaction.actions[0]) {
+    return null;
+  }
+
+  const serializedAction = transaction.actions[0];
+
+  if (serializedAction) {
+    serializedAction.data = serializedData;
+  }
 
   return serializedAction;
 };

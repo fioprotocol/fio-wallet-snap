@@ -1,26 +1,15 @@
-/**
- * @module JS-Sig
- */
-// copyright defined in fiojs/LICENSE.txt
-
-// eslint-disable-next-line import/no-nodejs-modules
 import { Buffer } from 'buffer';
 
 import { signChainTx } from '../encrypt/signature';
 import type {
-  SignatureProvider,
   SignatureProviderArgs,
 } from './chain-api-interfaces';
 
-/** Signs transactions using in-process private keys */
-
-/** Sign a transaction */
-
-export const signTx = async ({
+export const signTx = ({
   chainId,
   privateKeyBuffer,
   serializedTransaction,
-}: SignatureProviderArgs): SignatureProvider => {
+}: SignatureProviderArgs): string[] => {
   const signBuf = Buffer.concat([
     Buffer.from(chainId, 'hex'),
     Buffer.from(serializedTransaction),

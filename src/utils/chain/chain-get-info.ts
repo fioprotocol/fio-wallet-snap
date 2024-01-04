@@ -1,4 +1,10 @@
-export const getChainInfo = async ({ apiUrl }: { apiUrl: string }) => {
+import type { BlockInfo, ChainInfo } from '../../types';
+
+export const getChainInfo = async ({
+  apiUrl,
+}: {
+  apiUrl: string;
+}): Promise<{ info: ChainInfo; blockInfo: BlockInfo }> => {
   const info = await (await fetch(`${apiUrl}/v1/chain/get_info`)).json();
 
   const blockInfo = await (

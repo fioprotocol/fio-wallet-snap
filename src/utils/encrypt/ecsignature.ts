@@ -2,8 +2,9 @@ import BigInteger from 'bigi';
 import { Buffer } from 'buffer';
 
 import { enforceType } from './enforce_types';
+import { ECSignatureType } from '../../types';
 
-export const ECSignature = (r, s) => {
+export const ECSignature = (r: BigInteger, s: BigInteger): ECSignatureType => {
   enforceType(BigInteger, r);
   enforceType(BigInteger, s);
 

@@ -1,3 +1,4 @@
+import { Transaction, TransactionAction } from '../../types';
 import {
   SerialBuffer,
   createInitialTypes,
@@ -13,8 +14,8 @@ export const serializeTransaction = async ({
   transaction,
 }: {
   apiUrl: string;
-  serializedAction: any;
-  transaction: any;
+  serializedAction: TransactionAction | null;
+  transaction: Transaction;
 }) => {
   const abiMsig = await (
     await fetch(`${apiUrl}/v1/chain/get_abi`, {
@@ -40,7 +41,7 @@ export const serializeTransaction = async ({
 
   // Serialize the transaction
   const buffer = new SerialBuffer({ textEncoder, textDecoder });
-  txnAction.serialize(buffer, rawTransaction);
+  txnAction && txnAction.serialize(buffer, rawTransaction);
 
   const serializedTransaction = buffer.asUint8Array();
 

@@ -1,6 +1,7 @@
+import type { BlockInfo, DataParams, Transaction } from '../../types';
 import { accountHash } from '../general';
 
-export const createTransaction = async ({
+export const createTransaction = ({
   account,
   action,
   authActor,
@@ -14,23 +15,20 @@ export const createTransaction = async ({
   action: string;
   authActor: string | undefined;
   chainInfo: {
-    blockInfo: {
-      block_num: string;
-      ref_block_prefix: string;
-    };
+    blockInfo: BlockInfo;
   };
-  data: any;
+  data: DataParams;
   dataActor?: string | undefined;
   fioPubKey: string;
-  timeoutOffset: number;
-}) => {
+  timeoutOffset: string;
+  }): Transaction => {
   const {
     blockInfo: { block_num, ref_block_prefix },
   } = chainInfo;
   const currentDate = new Date();
-  const timePlusTimeout = currentDate.getTime() + timeoutOffset;
+  const timePlusTimeout = currentDate.getTime() + Number(timeoutOffset);
   const timeInISOString = new Date(timePlusTimeout).toISOString();
-  const expiration = timeInISOString.substr(0, timeInISOString.length - 1);
+  const expiration = timeInISOString.substring(0, timeInISOString.length - 1);
 
   const userAccount = accountHash(fioPubKey);
 

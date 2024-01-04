@@ -14,6 +14,7 @@ import { checkDecode } from './key_utils';
 
 import fioAbi from '../../abi/encryption-fio.abi.json';
 import { FIO_CHAIN_NAME } from '../../constants';
+import { DataParams } from '../../types';
 
 const curve = getCurveByName('secp256k1');
 
@@ -22,8 +23,8 @@ const textEncoder = new TextEncoder();
 
 const fioTypes = getTypesFromAbi(createInitialTypes(), fioAbi);
 
-function serialize(serialBuffer: SerialBuffer, type: string, value: any): void {
-  fioTypes.get(type).serialize(serialBuffer, value);
+function serialize(serialBuffer: SerialBuffer, type: string, value: DataParams['content']): void {
+  fioTypes.get(type)!.serialize(serialBuffer, value);
 }
 
 const checkEncrypt = ({
@@ -34,8 +35,8 @@ const checkEncrypt = ({
   message: Buffer;
 }): Buffer => {
   const K = sha512(secret);
-  const Ke = K.subarray(0, 32); // Encryption
-  const Km = K.subarray(32); // MAC
+  const Ke = K instanceof Buffer ? K.subarray(0, 32): Buffer.from(K).subarray(0, 32); // Encryption
+  const Km = K instanceof Buffer ? K.subarray(32) : Buffer.from(K).subarray(32); // MAC
   const IV = randomBytes(16);
 
   // Cipher performs PKCS#5 padded automatically
@@ -45,13 +46,6 @@ const checkEncrypt = ({
   const M = HmacSHA256(Buffer.concat([IV, C]), Km);
   return Buffer.concat([IV, C, M]);
 };
-
-/**
- * ECIES
- *
- * @param {BigInteger} privateKeyInt - PrivateKey in BigInteger
- * @returns {Buffer} 64 byte shared secret
- */
 
 const getSharedSecret = async ({
   privateKeyInt,
@@ -65,7 +59,7 @@ const getSharedSecret = async ({
     encryptionPublicKey = encryptionPublicKey.substring(FIO_CHAIN_NAME.length);
   }
 
-  const encryptionPublicKeyBuffer = checkDecode(encryptionPublicKey);
+  const encryptionPublicKeyBuffer = checkDecode({ keyString: encryptionPublicKey });
   const encryptionPublicKeyPoint = Point.decodeFrom(
     curve,
     encryptionPublicKeyBuffer,
@@ -93,18 +87,6 @@ const getSharedSecret = async ({
   return sha512(S);
 };
 
-/**
- * Encrypt the content of a FIO message.
- *
- * @param fioContentType - `new_funds_content`, etc
- * @param {object} content
- * @param publicKey - FIO PublicKey
- * @param {Buffer} [IV = randomBytes(16)] - An unpredictable strong random value
- * is required and supplied by default.  Unit tests may provide a static value
- * to achieve predictable results.
- * @returns {string} cipher base64
- */
-
 export const getCipherContent = async ({
   fioContentType,
   content,
@@ -112,7 +94,7 @@ export const getCipherContent = async ({
   encryptionPublicKey,
 }: {
   fioContentType: string;
-  content: any;
+  content: DataParams['content'];
   privateKeyBuffer: Buffer;
   encryptionPublicKey: string;
 }): Promise<string> => {
@@ -131,6 +113,6 @@ export const getCipherContent = async ({
 
   const message = Buffer.from(buffer.asUint8Array());
 
-  const cipherbuffer = checkEncrypt({ secret: sharedSecret, message });
+  const cipherbuffer = checkEncrypt({ secret: sharedSecret instanceof Buffer ? sharedSecret : Buffer.from(sharedSecret), message });
   return cipherbuffer.toString('base64');
 };

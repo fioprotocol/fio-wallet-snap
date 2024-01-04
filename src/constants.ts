@@ -5,7 +5,7 @@ export const FIO_TRANSACTION_ACTION_NAMES = {
 
 export const FIO_CHAIN_NAME = 'FIO';
 
-export const DEFAULT_TIMEOUT_OFFSET = 60000;
+export const DEFAULT_TIMEOUT_OFFSET = '60000'; // 1 min in miliseconds
 
 export const FIO_CHAIN_ID = {
   MAINNET: '21dcae42c0182200e93f954a074011f9048a7624c6fe81d3c9541a614a88bd1c',
