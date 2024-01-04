@@ -5,6 +5,7 @@ import {
   FIO_ENVIRONMENT_CHAIN_NAMES,
   FIO_TRANSACTION_ACTION_NAMES,
 } from '../../constants';
+import type { DataParams, RequestParams } from '../../types';
 import { getChainInfo } from '../chain/chain-get-info';
 import { signTx } from '../chain/chain-jssig';
 import { arrayToHex } from '../chain/chain-numeric';
@@ -17,21 +18,10 @@ import { cypherContent } from './cypher-content';
 export const signTransaction = async ({
   requestParams,
 }: {
-  requestParams: {
-    apiUrl: string;
-    account: string;
-    action: string;
-    authActor: string | undefined;
-    contentType: string | undefined;
-    data: any;
-    dataActor: string | undefined;
-    fioPubKey: string;
-    payerFioPublicKey: string | undefined;
-    timeoutOffset: number;
-  };
+  requestParams: RequestParams;
 }) => {
   const fioPubKey = await getPublicKey();
-  const privBuffer = await getPrivateKeyBuffer();
+  const privateKeyBuffer = await getPrivateKeyBuffer();
 
   const {
     action,
@@ -54,11 +44,12 @@ export const signTransaction = async ({
     throw new Error('Cannot identify FIO chain');
   }
 
-  const mapEntries = (data: any) => {
-    return Object.entries(data).map(([key, value]) => {
+  const mapEntries = (contentData: DataParams) => {
+    return Object.entries(contentData).map(([key, value]) => {
       if (typeof value === 'object') {
         return text(`${key}: ${JSON.stringify(value)}`);
       }
+
       return text(`${key}: ${value}`);
     });
   };
@@ -83,7 +74,7 @@ export const signTransaction = async ({
     throw new Error('Sign transaction cacneled');
   }
 
-  const transaction = await createTransaction({
+  const transaction = createTransaction({
     account,
     action,
     authActor,
@@ -100,17 +91,23 @@ export const signTransaction = async ({
     contentType
   ) {
     const encryptionPublicKey =
-      payerFioPublicKey ?? data?.content?.payee_public_address;
+      payerFioPublicKey ??
+      (typeof data?.content === 'object' &&
+        data?.content?.payee_public_address);
 
-    const cypheredContent = await cypherContent({
-      action,
-      content: data.content,
-      contentType,
-      encryptionPublicKey,
-      privBuffer,
-    });
+    if (encryptionPublicKey) {
+      const cypheredContent = await cypherContent({
+        action,
+        content: data.content,
+        contentType,
+        encryptionPublicKey,
+        privateKeyBuffer,
+      });
 
-    transaction.actions[0].data.content = cypheredContent;
+      if (transaction.actions[0] && typeof transaction.actions[0].data === 'object') {
+        transaction.actions[0].data.content = cypheredContent;
+      }
+    }
   }
 
   const serializedAction = await serializeAction({
@@ -126,9 +123,9 @@ export const signTransaction = async ({
     transaction,
   });
 
-  const signedTxnSignatures = await signTx({
+  const signedTxnSignatures = signTx({
     chainId,
-    privateKeyBuffer: privBuffer.slice(1),
+    privateKeyBuffer: privateKeyBuffer.subarray(1),
     serializedTransaction,
   });
 

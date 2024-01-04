@@ -3,6 +3,7 @@ import { getBIP44AddressKeyDeriver } from '@metamask/key-tree';
 import base58 from 'bs58';
 
 import { ripemd160 } from './encrypt/hash';
+import { FIO_CHAIN_NAME } from '../constants';
 
 const getDerivedAddress = async (): Promise<BIP44Node> => {
   const fioNode = await snap.request({
@@ -19,11 +20,13 @@ const getDerivedAddress = async (): Promise<BIP44Node> => {
 export const getPublicKey = async (): Promise<string> => {
   const derivedAddress = await getDerivedAddress();
 
-  const pubBuffer = Buffer.from(derivedAddress.compressedPublicKeyBytes);
-  const checksumPubK: string = ripemd160(pubBuffer, 'hex').slice(0, 8);
+  const publicKeyBuffer = Buffer.from(derivedAddress.compressedPublicKeyBytes);
+  const checksumPublicKeyValue = ripemd160(publicKeyBuffer, 'hex'); 
+  const checksumPublicKeyString: string = checksumPublicKeyValue instanceof Buffer ? checksumPublicKeyValue.toString('hex') : checksumPublicKeyValue;
+  const checksumPublicKey = checksumPublicKeyString.slice(0, 8);
 
-  return 'FIO'.concat(
-    base58.encode(Buffer.concat([pubBuffer, Buffer.from(checksumPubK, 'hex')])),
+  return FIO_CHAIN_NAME.concat(
+    base58.encode(Buffer.concat([publicKeyBuffer, Buffer.from(checksumPublicKey, 'hex')])),
   );
 };
 

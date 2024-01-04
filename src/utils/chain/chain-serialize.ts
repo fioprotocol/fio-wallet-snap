@@ -15,7 +15,7 @@ export type Field = {
   typeName: string;
 
   /** Type of the field */
-  type: Type;
+  type: Type | null;
 };
 
 /** Options for serialize() and deserialize() */
@@ -44,19 +44,19 @@ export type Type = {
   aliasOfName: string;
 
   /** Type this is an array of, if any */
-  arrayOf: Type;
+  arrayOf: Type | null;
 
   /** Type this is an optional of, if any */
-  optionalOf: Type;
+  optionalOf: Type | null;
 
   /** Marks binary extension fields */
-  extensionOf?: Type;
+  extensionOf?: Type | null;
 
   /** Base name of this type, if this is a struct */
   baseName: string;
 
   /** Base of this type, if this is a struct */
-  base: Type;
+  base: Type | null;
 
   /** Contained fields, if this is a struct */
   fields: Field[];
@@ -114,7 +114,6 @@ export type SerializedAction = {
 
 /** Serialize and deserialize data */
 export class SerialBuffer {
-  // tslint:disable-line max-classes-per-file
   /** Amount of valid data in `array` */
   public length: number;
 
@@ -230,8 +229,8 @@ export class SerialBuffer {
   /** Get a `uint16` */
   public getUint16() {
     let v = 0;
-    v |= this.get() << 0;
-    v |= this.get() << 8;
+    v |= this.get()! << 0;
+    v |= this.get()! << 8;
     return v;
   }
 
@@ -248,10 +247,10 @@ export class SerialBuffer {
   /** Get a `uint32` */
   public getUint32() {
     let v = 0;
-    v |= this.get() << 0;
-    v |= this.get() << 8;
-    v |= this.get() << 16;
-    v |= this.get() << 24;
+    v |= this.get()! << 0;
+    v |= this.get()! << 8;
+    v |= this.get()! << 16;
+    v |= this.get()! << 24;
     return v >>> 0;
   }
 
@@ -290,9 +289,9 @@ export class SerialBuffer {
     let bit = 0;
     while (true) {
       const b = this.get();
-      v |= (b & 0x7f) << bit;
+      v |= (b! & 0x7f) << bit;
       bit += 7;
-      if (!(b & 0x80)) {
+      if (!(b! & 0x80)) {
         break;
       }
     }
@@ -373,7 +372,7 @@ export class SerialBuffer {
       let c = 0;
       for (let i = 0; i < 5; ++i) {
         if (bit >= 0) {
-          c = (c << 1) | ((a[Math.floor(bit / 8)] >> bit % 8) & 1);
+          c = (c << 1) | ((a[Math.floor(bit / 8)]! >> bit % 8) & 1);
           --bit;
         }
       }
@@ -452,7 +451,7 @@ export class SerialBuffer {
 
   /** Get a `symbol` */
   public getSymbol(): { name: string; precision: number } {
-    const precision = this.get();
+    const precision = this.get()!;
     const a = this.getUint8Array(7);
     let len;
     for (len = 0; len < a.length; ++len) {
@@ -532,7 +531,7 @@ export class SerialBuffer {
 
   /** Get a public key */
   public getPublicKey() {
-    const type = this.get();
+    const type = this.get()!;
     const data = this.getUint8Array(numeric.publicKeyDataSize);
     return numeric.publicKeyToString({ type, data });
   }
@@ -546,7 +545,7 @@ export class SerialBuffer {
 
   /** Get a private key */
   public getPrivateKey() {
-    const type = this.get();
+    const type = this.get()!;
     const data = this.getUint8Array(numeric.privateKeyDataSize);
     return numeric.privateKeyToString({ type, data });
   }
@@ -560,7 +559,7 @@ export class SerialBuffer {
 
   /** Get a signature */
   public getSignature() {
-    const type = this.get();
+    const type = this.get()!;
     const data = this.getUint8Array(numeric.signatureDataSize);
     return numeric.signatureToString({ type, data });
   }
@@ -621,7 +620,7 @@ export function stringToSymbol(s: string): { name: string; precision: number } {
   if (!m) {
     throw new Error('Invalid symbol');
   }
-  return { name: m[2], precision: +m[1] };
+  return { name: m[2]!, precision: +m[1]! };
 }
 
 /** Convert `Symbol` to `string`. format: `precision,NAME`. */
@@ -664,11 +663,23 @@ export function hexToUint8Array(hex: string) {
   return result;
 }
 
-function serializeUnknown(buffer: SerialBuffer, data: any): SerialBuffer {
+function serializeUnknown(this: {
+    name: string; aliasOfName:
+      // copyright defined in fiojs/LICENSE.txt
+      string; arrayOf: Type | null; optionalOf: Type | null; extensionOf: Type | null; baseName: string; base: Type | null; fields: Field[]; serialize: (buffer:
+        /** A field in an abi */
+        SerialBuffer, data: any, state?: SerializerState /** Field name */ | undefined, allowExtensions?: boolean | undefined) => void; deserialize: (buffer: SerialBuffer, state?: SerializerState | undefined, allowExtensions?: boolean | undefined) => any;
+  }, buffer: SerialBuffer, data: any): SerialBuffer {
   throw new Error("Don't know how to serialize " + this.name);
 }
 
-function deserializeUnknown(buffer: SerialBuffer): SerialBuffer {
+function deserializeUnknown(this: {
+    name: string; aliasOfName:
+      // copyright defined in fiojs/LICENSE.txt
+      string; arrayOf: Type | null; optionalOf: Type | null; extensionOf: Type | null; baseName: string; base: Type | null; fields: Field[]; serialize: (buffer:
+        /** A field in an abi */
+        SerialBuffer, data: any, state?: SerializerState /** Field name */ | undefined, allowExtensions?: boolean | undefined) => void; deserialize: (buffer: SerialBuffer, state?: SerializerState | undefined, allowExtensions?: boolean | undefined) => any;
+  }, buffer: SerialBuffer): SerialBuffer {
   throw new Error("Don't know how to deserialize " + this.name);
 }
 
@@ -690,14 +701,14 @@ function serializeStruct(
       if (state.skippedBinaryExtension) {
         throw new Error('unexpected ' + this.name + '.' + field.name);
       }
-      field.type.serialize(
+      field.type?.serialize(
         buffer,
         data[field.name],
         state,
         allowExtensions && field === this.fields[this.fields.length - 1],
       );
     } else {
-      if (allowExtensions && field.type.extensionOf) {
+      if (allowExtensions && field.type?.extensionOf) {
         state.skippedBinaryExtension = true;
       } else {
         throw new Error(
@@ -706,7 +717,7 @@ function serializeStruct(
             '.' +
             field.name +
             ' (type=' +
-            field.type.name +
+            field.type?.name +
             ')',
         );
       }
@@ -727,10 +738,10 @@ function deserializeStruct(
     result = {};
   }
   for (const field of this.fields) {
-    if (allowExtensions && field.type.extensionOf && !buffer.haveReadData()) {
+    if (allowExtensions && field.type?.extensionOf && !buffer.haveReadData()) {
       state.skippedBinaryExtension = true;
     } else {
-      result[field.name] = field.type.deserialize(
+      result[field.name] = field.type?.deserialize(
         buffer,
         state,
         allowExtensions,
@@ -759,7 +770,7 @@ function serializeVariant(
     throw new Error(`type "${data[0]}" is not valid for variant`);
   }
   buffer.pushVaruint32(i);
-  this.fields[i].type.serialize(buffer, data[1], state, allowExtensions);
+  this.fields[i]!.type?.serialize(buffer, data[1], state, allowExtensions);
 }
 
 function deserializeVariant(
@@ -772,8 +783,8 @@ function deserializeVariant(
   if (i >= this.fields.length) {
     throw new Error(`type index ${i} is not valid for variant`);
   }
-  const field = this.fields[i];
-  return [field.name, field.type.deserialize(buffer, state, allowExtensions)];
+  const field = this.fields[i]!;
+  return [field.name, field.type?.deserialize(buffer, state, allowExtensions)];
 }
 
 function serializeArray(
@@ -785,7 +796,7 @@ function serializeArray(
 ) {
   buffer.pushVaruint32(data.length);
   for (const item of data) {
-    this.arrayOf.serialize(buffer, item, state, false);
+    this.arrayOf?.serialize(buffer, item, state, false);
   }
 }
 
@@ -798,7 +809,7 @@ function deserializeArray(
   const len = buffer.getVaruint32();
   const result = [];
   for (let i = 0; i < len; ++i) {
-    result.push(this.arrayOf.deserialize(buffer, state, false));
+    result.push(this.arrayOf?.deserialize(buffer, state, false));
   }
   return result;
 }
@@ -814,7 +825,7 @@ function serializeOptional(
     buffer.push(0);
   } else {
     buffer.push(1);
-    this.optionalOf.serialize(buffer, data, state, allowExtensions);
+    this.optionalOf?.serialize(buffer, data, state, allowExtensions);
   }
 }
 
@@ -825,7 +836,7 @@ function deserializeOptional(
   allowExtensions?: boolean,
 ) {
   if (buffer.get()) {
-    return this.optionalOf.deserialize(buffer, state, allowExtensions);
+    return this.optionalOf?.deserialize(buffer, state, allowExtensions);
   } else {
     return null;
   }
@@ -838,7 +849,7 @@ function serializeExtension(
   state?: SerializerState,
   allowExtensions?: boolean,
 ) {
-  this.extensionOf.serialize(buffer, data, state, allowExtensions);
+  this.extensionOf?.serialize(buffer, data, state, allowExtensions);
 }
 
 function deserializeExtension(
@@ -847,7 +858,7 @@ function deserializeExtension(
   state?: SerializerState,
   allowExtensions?: boolean,
 ) {
-  return this.extensionOf.deserialize(buffer, state, allowExtensions);
+  return this.extensionOf?.deserialize(buffer, state, allowExtensions);
 }
 
 type CreateTypeArgs = {
@@ -933,7 +944,7 @@ export function createInitialTypes(): Map<string, Type> {
           buffer.push(checkRange(data, (data << 24) >> 24));
         },
         deserialize(buffer: SerialBuffer) {
-          return (buffer.get() << 24) >> 24;
+          return (buffer.get()! << 24) >> 24;
         },
       }),
       uint16: createType({
@@ -1206,8 +1217,8 @@ export function createInitialTypes(): Map<string, Type> {
       name: 'extended_asset',
       baseName: '',
       fields: [
-        { name: 'quantity', typeName: 'asset', type: result.get('asset') },
-        { name: 'contract', typeName: 'name', type: result.get('name') },
+        { name: 'quantity', typeName: 'asset', type: result.get('asset')! },
+        { name: 'contract', typeName: 'name', type: result.get('name')! },
       ],
       serialize: serializeStruct,
       deserialize: deserializeStruct,
@@ -1253,11 +1264,6 @@ export function getType(types: Map<string, Type>, name: string): Type {
   throw new Error('Unknown type: ' + name);
 }
 
-/**
- * Get types from abi
- * @param initialTypes Set of types to build on.
- *     In most cases, it's best to fill this from a fresh call to `getTypesFromAbi()`.
- */
 export function getTypesFromAbi(initialTypes: Map<string, Type>, abi: Abi) {
   const types = new Map(initialTypes);
   if (abi.types) {

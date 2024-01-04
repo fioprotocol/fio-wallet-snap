@@ -3,7 +3,10 @@ module.exports = {
 
   parserOptions: {
     sourceType: 'module',
+    ecmaVersion: 'latest',
   },
+
+  camelcase: 'off',
 
   extends: ['@metamask/eslint-config'],
 
@@ -16,6 +19,15 @@ module.exports = {
     {
       files: ['*.ts', '*.tsx'],
       extends: ['@metamask/eslint-config-typescript'],
+      rules: {
+        '@typescript-eslint/naming-convention': [
+          'error',
+          {
+            selector: ['variable', 'parameter'],
+            format: ['camelCase', 'PascalCase', 'UPPER_CASE', 'snake_case'],
+          },
+        ],
+      },
     },
 
     {

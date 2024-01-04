@@ -1,11 +1,10 @@
-// copyright defined in fiojs/LICENSE.txt
-
-import type { Abi, PushTransactionArgs } from './chain-rpc-interfaces';
+import { Transaction } from '../../types';
+import type { Abi } from './chain-rpc-interfaces';
 
 /** Arguments to `getRequiredKeys` */
 export type AuthorityProviderArgs = {
   /** Transaction that needs to be signed */
-  transaction: any;
+  transaction: Transaction;
 
   /** Public keys associated with the private keys that the `SignatureProvider` holds */
   availableKeys: string[];
@@ -58,6 +57,3 @@ export type SignatureProviderArgs = {
   /** ABIs for all contracts with actions included in `serializedTransaction` */
   abis?: BinaryAbi[];
 };
-
-/** Signs transactions */
-export type SignatureProvider = Promise<PushTransactionArgs>;

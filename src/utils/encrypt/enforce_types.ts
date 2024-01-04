@@ -1,12 +1,12 @@
 import { Buffer } from 'buffer';
 
-const getName = (fn) => {
+const getName = (fn: Function) => {
   // Why not fn.name: https://kangax.github.io/compat-table/es6/#function_name_property
   const match = fn.toString().match(/function (.*?)\(/);
   return match ? match[1] : null;
 };
 
-export const enforceType = (type, value) => {
+export const enforceType = (type: any, value: any) => {
   // Copied from https://github.com/bitcoinjs/bitcoinjs-lib
   switch (type) {
     case 'Array': {
