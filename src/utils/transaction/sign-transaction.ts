@@ -96,8 +96,7 @@ export const signTransaction = async ({
         data?.content?.payee_public_address);
 
     if (encryptionPublicKey) {
-      const cypheredContent = await cypherContent({
-        action,
+      const cypheredContent = cypherContent({
         content: data.content,
         contentType,
         encryptionPublicKey,

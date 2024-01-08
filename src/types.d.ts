@@ -53,8 +53,10 @@ export type RequestParams = {
   action: string;
   authActor: string | undefined;
   contentType?: string;
+  content?: string;
   data: DataParams;
   dataActor?: string;
+  encryptionPublicKey?: string | undefined;
   payerFioPublicKey?: string;
   timeoutOffset?: string;
   nonce?: string;
