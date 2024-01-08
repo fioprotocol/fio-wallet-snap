@@ -1,6 +1,6 @@
 import { Buffer } from 'buffer';
 
-import { signChainTx } from '../encrypt/signature';
+import { signSignature } from '../encrypt/signature';
 import type {
   SignatureProviderArgs,
 } from './chain-api-interfaces';
@@ -16,7 +16,7 @@ export const signTx = ({
     Buffer.from(new Uint8Array(32)),
   ]);
 
-  const signatures = [signChainTx({ data: signBuf, privateKeyBuffer })];
+  const signatures = [signSignature({ data: signBuf, privateKeyBuffer })];
 
   return signatures;
 };

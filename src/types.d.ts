@@ -57,6 +57,7 @@ export type RequestParams = {
   dataActor?: string;
   payerFioPublicKey?: string;
   timeoutOffset?: string;
+  nonce?: string;
 };
 
 export type BlockInfo = {
