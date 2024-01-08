@@ -37,8 +37,8 @@ const signHash = ({ dataSha256, encoding = 'hex', privateKeyBuffer }: { dataSha2
     throw new Error('dataSha256: 32-byte buffer required');
   }
 
-  const ptivateKeyInt = BigInteger.fromBuffer(privateKeyBuffer);
-  const publicKeyCurve = curve.G.multiply(ptivateKeyInt);
+  const privateKeyInt = BigInteger.fromBuffer(privateKeyBuffer);
+  const publicKeyCurve = curve.G.multiply(privateKeyInt);
 
   let der, e: BigInteger, ecsignature, i, lenR, lenS, nonce;
   i = null;
@@ -48,7 +48,7 @@ const signHash = ({ dataSha256, encoding = 'hex', privateKeyBuffer }: { dataSha2
     ecsignature = ecdsaSign({
       curve,
       hash: dataSha256,
-      d: ptivateKeyInt,
+      d: privateKeyInt,
       nonce: nonce++,
     });
 
@@ -80,13 +80,12 @@ const signHash = ({ dataSha256, encoding = 'hex', privateKeyBuffer }: { dataSha2
 
 
 
-export const signChainTx = ({ data, encoding = 'utf8', privateKeyBuffer }: { data: Buffer | string; encoding?: BufferEncoding; privateKeyBuffer: Uint8Array }): string => {
+export const signSignature = ({ data, encoding = 'utf8', privateKeyBuffer }: { data: Buffer | string; encoding?: BufferEncoding; privateKeyBuffer: Uint8Array }): string => {
   if (typeof data === 'string') {
     data = Buffer.from(data, encoding);
   }
   assert(Buffer.isBuffer(data), 'data is a required String or Buffer');
   const dataSha256 = sha256(data);
-  data = Buffer.isBuffer(dataSha256) ? sha256(data) : Buffer.from(dataSha256, encoding);
-
+  data = Buffer.isBuffer(dataSha256) ? dataSha256 : Buffer.from(dataSha256, encoding);
   return signHash({ dataSha256: data, privateKeyBuffer });
 };
