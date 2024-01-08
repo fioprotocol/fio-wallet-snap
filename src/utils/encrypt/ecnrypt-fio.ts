@@ -27,6 +27,10 @@ function serialize(serialBuffer: SerialBuffer, type: string, value: DataParams['
   fioTypes.get(type)!.serialize(serialBuffer, value);
 }
 
+function deserialize(serialBuffer: SerialBuffer, type: string): any {
+  return fioTypes.get(type)!.deserialize(serialBuffer);
+}
+
 const checkEncrypt = ({
   secret,
   message,
@@ -47,7 +51,27 @@ const checkEncrypt = ({
   return Buffer.concat([IV, C, M]);
 };
 
-const getSharedSecret = async ({
+const checkDecrypt = ({ secret, message }:{ secret: Buffer; message: Buffer }): Buffer => {
+  const K = sha512(secret);
+  const Ke = K instanceof Buffer ? K.subarray(0, 32) : Buffer.from(K).subarray(0, 32); // Encryption
+  const Km = K instanceof Buffer ? K.subarray(32) : Buffer.from(K).subarray(32); // MAC
+  const IV = message.subarray(0, 16);
+  const C = message.subarray(16, message.length - 32);
+  const M = message.subarray(message.length - 32);
+
+  // Side-channel attack protection: First verify the HMAC, then and only then proceed to the decryption step
+  const Mc = HmacSHA256(Buffer.concat([IV, C]), Km);
+
+  if (Buffer.compare(M, Mc) !== 0) {
+    throw new Error('Decrypt failed');
+  }
+
+  // Cipher performs PKCS#5 padded automatically
+  const cipher = cryptoaes.createDecipheriv('aes-256-cbc', Ke, IV);
+  return Buffer.concat([cipher.update(C, 'binary'), cipher.final()]);
+}
+
+const getSharedSecret = ({
   privateKeyInt,
   encryptionPublicKey,
 }: {
@@ -87,7 +111,7 @@ const getSharedSecret = async ({
   return sha512(S);
 };
 
-export const getCipherContent = async ({
+export const getCipherContent = ({
   fioContentType,
   content,
   privateKeyBuffer,
@@ -97,14 +121,14 @@ export const getCipherContent = async ({
   content: DataParams['content'];
   privateKeyBuffer: Buffer;
   encryptionPublicKey: string;
-}): Promise<string> => {
+}): string => {
   const buffer = new SerialBuffer({
     textEncoder,
     textDecoder,
   });
   const privateKeyInt = BigInteger.fromBuffer(privateKeyBuffer);
 
-  const sharedSecret = await getSharedSecret({
+  const sharedSecret = getSharedSecret({
     privateKeyInt,
     encryptionPublicKey,
   });
@@ -115,4 +139,36 @@ export const getCipherContent = async ({
 
   const cipherbuffer = checkEncrypt({ secret: sharedSecret instanceof Buffer ? sharedSecret : Buffer.from(sharedSecret), message });
   return cipherbuffer.toString('base64');
+};
+
+export const getUncipherContent = ({
+  encryptionPublicKey,
+  fioContentType,
+  content,
+  privateKeyBuffer
+}: {
+  encryptionPublicKey: string;
+    fioContentType: string;
+  content: string;
+  privateKeyBuffer: Buffer
+}): Promise<any> => {
+  const privateKeyInt = BigInteger.fromBuffer(privateKeyBuffer);
+
+  const sharedSecret = getSharedSecret({
+    privateKeyInt,
+    encryptionPublicKey,
+  });
+
+  const message = checkDecrypt({ secret: Buffer.isBuffer(sharedSecret) ? sharedSecret : Buffer.from(sharedSecret), message: Buffer.from(content, 'base64')});
+  const messageArray = Uint8Array.from(message);
+
+  const buffer = new SerialBuffer({
+    array: messageArray,
+    textEncoder,
+    textDecoder,
+  });
+
+  const deserializedContent = deserialize(buffer, fioContentType);
+
+  return deserializedContent;
 };

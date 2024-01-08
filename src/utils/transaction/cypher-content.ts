@@ -1,18 +1,17 @@
 import { DataParams } from '../../types';
 import { getCipherContent } from '../encrypt/ecnrypt-fio';
 
-export const cypherContent = async ({
+export const cypherContent = ({
   content,
   contentType,
   encryptionPublicKey,
   privateKeyBuffer,
 }: {
-  action: string;
   content: DataParams['content'];
   contentType: string;
   encryptionPublicKey: string;
   privateKeyBuffer: Buffer;
-}): Promise<string> => {
+}): string => {
   if (!content) {
     throw new Error('Missing content parameter');
   }
@@ -23,7 +22,7 @@ export const cypherContent = async ({
     throw new Error('Missing encrypt public key');
   }
 
-  const cypheredContent = await getCipherContent({
+  const cypheredContent = getCipherContent({
     content,
     fioContentType: contentType,
     privateKeyBuffer: privateKeyBuffer.subarray(1),
