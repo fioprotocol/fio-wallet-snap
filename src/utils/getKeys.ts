@@ -5,7 +5,7 @@ import base58 from 'bs58';
 import { ripemd160 } from './encrypt/hash';
 import { FIO_CHAIN_NAME } from '../constants';
 
-const getDerivedAddress = async (): Promise<BIP44Node> => {
+const getDerivedAddress = async ({ derivationIndex }: { derivationIndex?: number | undefined } = {}): Promise<BIP44Node> => {
   const fioNode = await snap.request({
     method: 'snap_getBip44Entropy',
     params: {
@@ -14,11 +14,13 @@ const getDerivedAddress = async (): Promise<BIP44Node> => {
   });
 
   const deriveFioAddress = await getBIP44AddressKeyDeriver(fioNode);
-  return await deriveFioAddress(0);
+  const derivationAddressIndex = derivationIndex || 0;
+
+  return await deriveFioAddress(derivationAddressIndex);
 };
 
-export const getPublicKey = async (): Promise<string> => {
-  const derivedAddress = await getDerivedAddress();
+export const getPublicKey = async ({ derivationIndex }: { derivationIndex?: number | undefined } = {}): Promise<string> => {
+  const derivedAddress = await getDerivedAddress({ derivationIndex });
 
   const publicKeyBuffer = Buffer.from(derivedAddress.compressedPublicKeyBytes);
   const checksumPublicKeyValue = ripemd160(publicKeyBuffer, 'hex'); 
@@ -30,8 +32,8 @@ export const getPublicKey = async (): Promise<string> => {
   );
 };
 
-export const getPrivateKeyBuffer = async (): Promise<Buffer> => {
-  const derivedAddress = await getDerivedAddress();
+export const getPrivateKeyBuffer = async ({ derivationIndex }: { derivationIndex?: number | undefined } = {}): Promise<Buffer> => {
+  const derivedAddress = await getDerivedAddress({ derivationIndex });
 
   const versionByte = Buffer.from('80', 'hex');
 

@@ -20,8 +20,8 @@ export const signTransaction = async ({
 }: {
   requestParams: RequestParams;
 }) => {
-  const fioPubKey = await getPublicKey();
-  const privateKeyBuffer = await getPrivateKeyBuffer();
+  const fioPubKey = await getPublicKey({ derivationIndex: requestParams.derivationIndex });
+  const privateKeyBuffer = await getPrivateKeyBuffer({ derivationIndex: requestParams.derivationIndex });
 
   const {
     action,

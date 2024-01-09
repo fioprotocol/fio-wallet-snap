@@ -56,6 +56,7 @@ export type RequestParams = {
   content?: string;
   data: DataParams;
   dataActor?: string;
+  derivationIndex?: number;
   encryptionPublicKey?: string | undefined;
   payerFioPublicKey?: string;
   timeoutOffset?: string;

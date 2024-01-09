@@ -5,10 +5,12 @@ import { getUncipherContent } from './ecnrypt-fio';
 
 export const decryptContent = async ({
   content,
+  derivationIndex,
   encryptionPublicKey,
-  fioContentType
+  fioContentType,
 }: {
   content: string | undefined;
+  derivationIndex: number | undefined;
   encryptionPublicKey: string | undefined;
   fioContentType: string | undefined;
 }) => {
@@ -36,7 +38,7 @@ export const decryptContent = async ({
     throw new Error('Missing content type parameter to decrypt');
   }
 
-  const privateKeyBuffer = await getPrivateKeyBuffer();
+  const privateKeyBuffer = await getPrivateKeyBuffer({ derivationIndex });
 
   const uncipheredContent = getUncipherContent({
     encryptionPublicKey,

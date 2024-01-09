@@ -10,17 +10,18 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   const requestParams = request?.params as RequestParams;
   switch (request.method) {
     case 'showPublicKey': {
-      return await getPublicKey();
+      return await getPublicKey({ derivationIndex: requestParams?.derivationIndex });
     }
     case 'signTransaction': {
       return await signTransaction({ requestParams });
     }
     case 'signNonce': {
-      return await signNonce({ nonce: requestParams.nonce });
+      return await signNonce({ nonce: requestParams.nonce, derivationIndex: requestParams?.derivationIndex });
     }
     case 'decryptContent': {
       return await decryptContent({
         content: requestParams.content,
+        derivationIndex: requestParams?.derivationIndex,
         encryptionPublicKey: requestParams.encryptionPublicKey,
         fioContentType: requestParams.contentType
       });
