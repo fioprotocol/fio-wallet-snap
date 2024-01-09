@@ -3,7 +3,7 @@ import { panel, heading } from '@metamask/snaps-sdk';
 import { getPrivateKeyBuffer } from './getKeys';
 import { signSignature } from './encrypt/signature';
 
-export const signNonce = async ({ nonce }: { nonce: string | Buffer | undefined }) => {
+export const signNonce = async ({ nonce, derivationIndex }: { nonce: string | Buffer | undefined; derivationIndex?: number | undefined }) => {
   const confirmResult = await snap.request({
     method: 'snap_dialog',
     params: {
@@ -18,7 +18,7 @@ export const signNonce = async ({ nonce }: { nonce: string | Buffer | undefined 
     throw new Error('Sign nonce canceled');
   }
 
-  const privateKeyBuffer = await getPrivateKeyBuffer();
+  const privateKeyBuffer = await getPrivateKeyBuffer({ derivationIndex });
 
   if (!nonce) throw new Error('Missing nonce for signing nonce.');
 
