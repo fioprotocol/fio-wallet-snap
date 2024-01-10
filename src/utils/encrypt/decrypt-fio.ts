@@ -1,4 +1,4 @@
-import { panel, heading } from '@metamask/snaps-sdk';
+import { panel, heading, text } from '@metamask/snaps-sdk';
 
 import { getPrivateKeyBuffer } from '../getKeys';
 import { getUncipherContent } from './ecnrypt-fio';
@@ -19,13 +19,14 @@ export const decryptContent = async ({
     params: {
       type: 'confirmation',
       content: panel([
-        heading(`Decrypt FIO content`),
+        heading(`Decrypt FIO Data`),
+        text('Please approve the decryption of FIO Data. For your security and privacy, FIO Data is always encrypted and has to be decrypted before viewing.'),
       ]),
     },
   });
 
   if (!confirmResult) {
-    throw new Error('Decrypt FIO content canceled');
+    throw new Error('Decrypt FIO data canceled');
   }
 
   if (!content) {

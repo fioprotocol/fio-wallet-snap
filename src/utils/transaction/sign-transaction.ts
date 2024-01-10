@@ -59,12 +59,14 @@ export const signTransaction = async ({
     params: {
       type: 'confirmation',
       content: panel([
-        heading(`Sign transaction!`),
+        heading(`Sign FIO Transaction`),
         divider(),
+        text('Please approve the following transaction.'),
         text(`Transaction name: **${action}**`),
         divider(),
-        text(`Chain name: ${chainName}`),
+        text(`FIO Chain: ${chainName}`),
         divider(),
+        text('Transaction details:'),
         ...mapEntries(data),
       ]),
     },
