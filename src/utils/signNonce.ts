@@ -1,4 +1,4 @@
-import { panel, heading } from '@metamask/snaps-sdk';
+import { divider, panel, heading, text } from '@metamask/snaps-sdk';
 
 import { getPrivateKeyBuffer } from './getKeys';
 import { signSignature } from './encrypt/signature';
@@ -9,7 +9,10 @@ export const signNonce = async ({ nonce, derivationIndex }: { nonce: string | Bu
     params: {
       type: 'confirmation',
       content: panel([
-        heading(`Sign nonce`),
+        heading(`Sign-in to FIO App`),
+        text('Please approve this nonce signature to sign-in to the FIO App. Nonce signature proves that you are the owner of the associated FIO Public Key.'),
+        divider(),
+        text(`Random nonce: ${nonce}`),
       ]),
     },
   });
