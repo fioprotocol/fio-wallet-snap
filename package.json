@@ -1,6 +1,6 @@
 {
   "name": "fio-wallet-snap-test",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "FIO Wallet MetaMask Snap",
   "repository": {
     "type": "git",
