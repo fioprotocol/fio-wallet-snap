@@ -1,5 +1,5 @@
 {
-  "name": "fio-wallet-snap-test",
+  "name": "@fioprotocol/fio-wallet-snap-test",
   "version": "0.1.12",
   "description": "FIO Wallet MetaMask Snap",
   "repository": {
