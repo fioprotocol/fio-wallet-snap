@@ -73,7 +73,7 @@ export const signTransaction = async ({
   });
 
   if (!confirmResult) {
-    throw new Error('Sign transaction cacneled');
+    throw new Error('Sign transaction canceled');
   }
 
   const transaction = createTransaction({
