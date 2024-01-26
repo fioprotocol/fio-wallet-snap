@@ -46,9 +46,8 @@ export type DataParams = {
   tpid: string;
 };
 
-export type RequestParams = {
+export type RequestParamsItem = {
   actor?: string;
-  apiUrl: string;
   account: string;
   action: string;
   authActor: string | undefined;
@@ -58,10 +57,18 @@ export type RequestParams = {
   dataActor?: string;
   derivationIndex?: number;
   encryptionPublicKey?: string | undefined;
+  id?: string;
   payerFioPublicKey?: string;
   timeoutOffset?: string;
   nonce?: string;
 };
+
+export type RequestParams = {
+  apiUrl: string;
+  actionParams: Array<RequestParamsItem>
+} | {
+  apiUrl: string;
+} & RequestParamsItem;
 
 export type BlockInfo = {
   action_mroot: string;
@@ -114,6 +121,13 @@ export type Transaction = {
   ref_block_num: number;
   ref_block_prefix: number;
   actions: Array<TransactionAction>;
+};
+
+export type SignedTransaction = {
+  signatures: string[];
+  compression: number;
+  packed_context_free_data: string;
+  packed_trx: string;
 };
 
 export type ECSignatureType = {
