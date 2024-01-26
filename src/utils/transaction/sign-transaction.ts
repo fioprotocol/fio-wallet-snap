@@ -80,7 +80,7 @@ export const signTransaction = async ({
     throw new Error('Sign transaction canceled');
   }
 
-  for (const actionParamItem in actionParams) {
+  for (const actionParamItem of actionParams) {
     try {
       const {
         action,
@@ -93,7 +93,7 @@ export const signTransaction = async ({
         id,
         payerFioPublicKey,
         timeoutOffset = DEFAULT_TIMEOUT_OFFSET,
-      } = actionParamItem as unknown as RequestParamsItem;
+      } = actionParamItem;
 
       const fioPubKey = await getPublicKey({ derivationIndex });
       const privateKeyBuffer = await getPrivateKeyBuffer({ derivationIndex });
@@ -175,5 +175,5 @@ export const signTransaction = async ({
     }
   }
 
-  return transactions;
+  return JSON.stringify(transactions);
 };
