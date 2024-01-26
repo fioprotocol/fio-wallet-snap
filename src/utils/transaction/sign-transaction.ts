@@ -50,9 +50,9 @@ export const signTransaction = async ({
   };
 
   const mapActionsEntries = (actionParams: Array<RequestParamsItem>) => {
-    return actionParams.map(actionParamsItem => {
+    return actionParams.map((actionParamsItem, index)=> {
       return [
-        text(`Transaction name: **${actionParamsItem.action}**`),
+        text(`#${index + 1}. Transaction name: **${actionParamsItem.action}**`),
         divider(),
         text(`FIO Chain: ${chainName}`),
         divider(),
@@ -69,6 +69,7 @@ export const signTransaction = async ({
       type: 'confirmation',
       content: panel([
         heading(`Sign FIO Transactions`),
+        text(`${actionParams.length} transaction${actionParams.length > 1 ? 's' : ''}`),
         divider(),
         text('Please approve the following transactions.'),
         ...mapActionsEntries(actionParams),
