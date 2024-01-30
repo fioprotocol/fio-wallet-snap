@@ -7,7 +7,7 @@
     "url": "https://github.com/fioprotocol/fio-wallet-snap.git"
   },
   "source": {
-    "shasum": "e4t3gNMOqqQ7SS1BnCJEMIOuHyfnD1VIZ+LUY7MdNxA=",
+    "shasum": "j1v6BF9UWuJ2jNwp8vKOx9dN2augxaHGkQ6B8paU0QE=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",

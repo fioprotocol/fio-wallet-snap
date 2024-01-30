@@ -92,6 +92,7 @@ export const signTransaction = async ({
         dataActor,
         derivationIndex,
         id,
+        payeeFioPublicKey,
         payerFioPublicKey,
         timeoutOffset = DEFAULT_TIMEOUT_OFFSET,
       } = actionParamItem;
@@ -116,7 +117,7 @@ export const signTransaction = async ({
         contentType
       ) {
         const encryptionPublicKey =
-          payerFioPublicKey ??
+          payerFioPublicKey ?? payeeFioPublicKey ??
           (typeof data?.content === 'object' &&
             data?.content?.payee_public_address);
 

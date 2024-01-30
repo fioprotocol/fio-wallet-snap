@@ -59,6 +59,7 @@ export type RequestParamsItem = {
   encryptionPublicKey?: string | undefined;
   id?: string;
   payerFioPublicKey?: string;
+  payerFioPublicKey?: string;
   timeoutOffset?: string;
   nonce?: string;
 };
