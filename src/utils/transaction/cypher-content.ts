@@ -1,5 +1,5 @@
 import { DataParams } from '../../types';
-import { getCipherContent } from '../encrypt/ecnrypt-fio';
+import { getCipherContent } from '../encrypt/encrypt-fio';
 
 export const cypherContent = ({
   content,

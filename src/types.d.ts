@@ -6,7 +6,7 @@ export type DataParams = {
   chain_code?: string;
   content?:
   | {
-    payer_public_address?: string;
+    payer_public_address?: string | undefined;
     payee_public_address: string;
     amount: string;
     chain_code: string;
@@ -17,7 +17,7 @@ export type DataParams = {
     hash: string | null;
     offline_url: string | null;
   }
-  | string;
+  | string | Json;
   fio_address?: string;
   fio_domain?: string;
   fio_request_id?: string;
@@ -46,9 +46,8 @@ export type DataParams = {
   tpid: string;
 };
 
-export type RequestParams = {
+export type RequestParamsItem = {
   actor?: string;
-  apiUrl: string;
   account: string;
   action: string;
   authActor: string | undefined;
@@ -58,9 +57,19 @@ export type RequestParams = {
   dataActor?: string;
   derivationIndex?: number;
   encryptionPublicKey?: string | undefined;
+  id?: string;
+  payeeFioPublicKey?: string;
   payerFioPublicKey?: string;
   timeoutOffset?: string;
   nonce?: string;
+};
+
+export type RequestParams = {
+  apiUrl?: string;
+} & RequestParamsItem;
+export type RequestParamsTranasction = {
+  apiUrl: string;
+  actionParams: Array<RequestParamsItem>;
 };
 
 export type BlockInfo = {
@@ -114,6 +123,13 @@ export type Transaction = {
   ref_block_num: number;
   ref_block_prefix: number;
   actions: Array<TransactionAction>;
+};
+
+export type SignedTransaction = {
+  signatures: string[];
+  compression: number;
+  packed_context_free_data: string;
+  packed_trx: string;
 };
 
 export type ECSignatureType = {
