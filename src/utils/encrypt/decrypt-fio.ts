@@ -1,7 +1,7 @@
 import { panel, heading, text } from '@metamask/snaps-sdk';
 
 import { getPrivateKeyBuffer } from '../getKeys';
-import { getUncipherContent } from './ecnrypt-fio';
+import { getUncipherContent } from './encrypt-fio';
 
 export const decryptContent = async ({
   content,

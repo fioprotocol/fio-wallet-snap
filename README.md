@@ -1,8 +1,6 @@
-# TypeScript Example Snap
+# FIO Wallet Snap
 
-This snap demonstrates how to develop a snap with TypeScript. It is a simple
-snap that displays a confirmation dialog when the `hello` JSON-RPC method is
-called.
+The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users  register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs.
 
 ## Testing
 

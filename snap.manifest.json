@@ -1,18 +1,18 @@
 {
-  "version": "0.1.12",
-  "description": "An example of FIO Snap",
-  "proposedName": "FIO Wallet Test",
+  "version": "1.0.0",
+  "description": "The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs.",
+  "proposedName": "FIO Wallet Snap",
   "repository": {
     "type": "git",
     "url": "https://github.com/fioprotocol/fio-wallet-snap.git"
   },
   "source": {
-    "shasum": "N2yL77fh6aKymDPYFJE48Pj+ohDZ33zHBnGbG8v05Iw=",
+    "shasum": "vCpZUuWJf79AOKfrBZXVPLK6VL6qg9dtmuuUq90NeA8=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
         "iconPath": "images/fio-logo.svg",
-        "packageName": "fio-wallet-snap-test",
+        "packageName": "@fioprotocol/fio-wallet-snap",
         "registry": "https://registry.npmjs.org/"
       }
     }

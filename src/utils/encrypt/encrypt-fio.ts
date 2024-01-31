@@ -148,10 +148,10 @@ export const getUncipherContent = ({
   privateKeyBuffer
 }: {
   encryptionPublicKey: string;
-    fioContentType: string;
+  fioContentType: string;
   content: string;
   privateKeyBuffer: Buffer
-}): Promise<any> => {
+}): DataParams['content'] => {
   const privateKeyInt = BigInteger.fromBuffer(privateKeyBuffer);
 
   const sharedSecret = getSharedSecret({
