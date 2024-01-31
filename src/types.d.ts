@@ -6,7 +6,7 @@ export type DataParams = {
   chain_code?: string;
   content?:
   | {
-    payer_public_address?: string;
+    payer_public_address?: string | undefined;
     payee_public_address: string;
     amount: string;
     chain_code: string;
@@ -17,7 +17,7 @@ export type DataParams = {
     hash: string | null;
     offline_url: string | null;
   }
-  | string;
+  | string | Json;
   fio_address?: string;
   fio_domain?: string;
   fio_request_id?: string;
@@ -58,18 +58,19 @@ export type RequestParamsItem = {
   derivationIndex?: number;
   encryptionPublicKey?: string | undefined;
   id?: string;
-  payerFioPublicKey?: string;
+  payeeFioPublicKey?: string;
   payerFioPublicKey?: string;
   timeoutOffset?: string;
   nonce?: string;
 };
 
 export type RequestParams = {
-  apiUrl: string;
-  actionParams: Array<RequestParamsItem>
-} | {
-  apiUrl: string;
+  apiUrl?: string;
 } & RequestParamsItem;
+export type RequestParamsTranasction = {
+  apiUrl: string;
+  actionParams: Array<RequestParamsItem>;
+};
 
 export type BlockInfo = {
   action_mroot: string;

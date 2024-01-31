@@ -1,30 +1,38 @@
 import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
 
-import type { RequestParams } from './types';
+import type { RequestParams, RequestParamsTranasction } from './types';
 import { getPublicKey } from './utils/getKeys';
 import { signTransaction } from './utils/transaction/sign-transaction';
 import { signNonce } from './utils/signNonce';
 import { decryptContent } from './utils/encrypt/decrypt-fio';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
-  const requestParams = request?.params as RequestParams;
+  const requestParams = request?.params as RequestParams | RequestParamsTranasction;
   switch (request.method) {
     case 'showPublicKey': {
-      return await getPublicKey({ derivationIndex: requestParams?.derivationIndex });
+      if ('derivationIndex' in requestParams) {
+        return await getPublicKey({ derivationIndex: requestParams?.derivationIndex });
+      }
     }
     case 'signTransaction': {
-      return await signTransaction({ requestParams });
+      if ('actionParams' in requestParams ) {
+        return await signTransaction({ requestParams });
+      }
     }
     case 'signNonce': {
-      return await signNonce({ nonce: requestParams.nonce, derivationIndex: requestParams?.derivationIndex });
+      if ('nonce' in requestParams) {
+        return await signNonce({ nonce: requestParams.nonce, derivationIndex: requestParams?.derivationIndex });
+      }
     }
     case 'decryptContent': {
-      return await decryptContent({
-        content: requestParams.content,
-        derivationIndex: requestParams?.derivationIndex,
-        encryptionPublicKey: requestParams.encryptionPublicKey,
-        fioContentType: requestParams.contentType
-      });
+      if ('content' in requestParams) {
+        return await decryptContent({
+          content: requestParams.content,
+          derivationIndex: requestParams?.derivationIndex,
+          encryptionPublicKey: requestParams.encryptionPublicKey,
+          fioContentType: requestParams.contentType
+        });
+      }
     }
     default:
       throw new Error('Method not found.');

@@ -5,7 +5,7 @@ import {
   FIO_ENVIRONMENT_CHAIN_NAMES,
   FIO_TRANSACTION_ACTION_NAMES,
 } from '../../constants';
-import type { DataParams, RequestParams, RequestParamsItem, SignedTransaction } from '../../types';
+import type { DataParams, RequestParamsItem, RequestParamsTranasction, SignedTransaction } from '../../types';
 import { getChainInfo } from '../chain/chain-get-info';
 import { signTx } from '../chain/chain-jssig';
 import { arrayToHex } from '../chain/chain-numeric';
@@ -18,13 +18,13 @@ import { cypherContent } from './cypher-content';
 export const signTransaction = async ({
   requestParams,
 }: {
-  requestParams: RequestParams;
+  requestParams: RequestParamsTranasction;
 }) => {
   const { actionParams, apiUrl } = requestParams;
 
   const transactions: {
     successed: Array<SignedTransaction>;
-    failed: Array<{ id?: string; error: Error }>;
+    failed: Array<{ id: string; error: Error }>;
   } = {
     successed: [],
     failed: [],
@@ -167,10 +167,10 @@ export const signTransaction = async ({
       if (error instanceof Error) {
         const errorToPush: {
           error: Error;
-          id?: string;
-        } = { error };
+          id: string;
+        } = { error, id: '0' };
         if ((actionParamItem as unknown as RequestParamsItem)?.id) {
-          errorToPush.id = (actionParamItem as unknown as RequestParamsItem)?.id;
+          errorToPush.id = (actionParamItem as unknown as RequestParamsItem)?.id || '0';
         }
         transactions.failed.push(errorToPush);
       }
