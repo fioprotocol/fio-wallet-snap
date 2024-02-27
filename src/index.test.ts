@@ -56,6 +56,9 @@ describe('onRpcRequest', () => {
 
     const response = await request({
       method: 'showPublicKey',
+      params: {
+        derivationIndex: 0,
+      }
     });
 
     expect(response).toRespondWith(
