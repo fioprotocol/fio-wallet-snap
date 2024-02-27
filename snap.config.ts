@@ -14,7 +14,6 @@ const config: SnapConfig = {
     events: true,
     stream: true,
     util: true,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
     string_decoder: true,
   },
 };
