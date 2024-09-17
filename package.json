@@ -1,6 +1,6 @@
 {
   "name": "@fioprotocol/fio-wallet-snap",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs.",
   "repository": {
     "type": "git",
