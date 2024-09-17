@@ -7,7 +7,7 @@
     "url": "https://github.com/fioprotocol/fio-wallet-snap.git"
   },
   "source": {
-    "shasum": "R1u4Txqmtx8m8s7O3/FcuwmeipdlY5KVCWBjPegRdaw=",
+    "shasum": "CaQnaMkIFjTYZ0+sQqSNoWHZFl1qJiFFcxO5s3JxdeE=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -19,7 +19,6 @@
   },
   "initialPermissions": {
     "snap_dialog": {},
-    "snap_manageState": {},
     "snap_getBip44Entropy": [
       {
         "coinType": 235
