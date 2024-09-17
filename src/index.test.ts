@@ -1,8 +1,12 @@
 import { expect } from '@jest/globals';
-import { installSnap } from '@metamask/snaps-jest';
+import { installSnap, SnapConfirmationInterface } from '@metamask/snaps-jest';
+import type { ChainId } from '@metamask/snaps-sdk';
 import assert from 'assert';
 
-const apiUrl = 'https://fiotestnet.blockpane.com';
+import { onNameLookup } from '.';
+import { PROTOCOL_NAME } from './constants';
+
+const apiUrl = 'https://test.fio.eosusa.io';
 const transactionActionParams = {
   apiUrl,
   actionParams: [{
@@ -76,8 +80,8 @@ describe('onRpcRequest', () => {
       },
     });
 
-    const ui = await response.getInterface();
-
+    const ui = await response.getInterface() as SnapConfirmationInterface;
+    
     await ui.ok();
 
     const result = await response;
@@ -95,7 +99,7 @@ describe('onRpcRequest', () => {
       params: transactionActionParams,
     });
 
-    const ui = await response.getInterface();
+    const ui = await response.getInterface() as SnapConfirmationInterface;
 
     await ui.ok();
 
@@ -115,14 +119,14 @@ describe('onRpcRequest', () => {
   });
 
   it('returns canceled transaction confirmation', async () => {
-    const { request, close } = await installSnap();
+    const { request } = await installSnap();
 
     const response = request({
       method: 'signTransaction',
       params: transactionActionParams,
     });
 
-    const ui = await response.getInterface();
+    const ui = await response.getInterface() as SnapConfirmationInterface;
 
     assert(ui.type === 'confirmation');
 
@@ -143,7 +147,7 @@ describe('onRpcRequest', () => {
       params: decryptContentParams,
     });
 
-    const ui = await response.getInterface();
+    const ui = await response.getInterface() as SnapConfirmationInterface;
 
     await ui.ok();
 
@@ -153,5 +157,89 @@ describe('onRpcRequest', () => {
       const resultObj = result.response.result as { memo: string};
       expect(resultObj.memo).toEqual('Hello Metamask');
     }
+  });
+});
+
+const DOMAIN_MOCK = 'test2@moon';
+const ADDRESS_MOCK = '0xA43255677515Fc42E7c9E0DCa634a0BABB36b21E';
+const CHAIN_ID_MOCK = 'eip155:1' as ChainId;
+
+const CHAIN_ID_NOT_EXIST_IN_A_LIST = 'eip155:200' as ChainId;
+
+const NON_VALID_SHORT_DOMAIN_MOCK = '1@';
+const NON_VALID_DASH_DOMAIN_MOCK = 'test-@wallet';
+const NON_VALID_LONG_DOMAIN_MOCK = '123debwucyvuiwycbviwbvc3vevdscs@bhywtcieycgwt368298h98hf98gf928d9b29eubcv93ycbv93uebc9';
+const DOMAIN_NOT_EXISTS = 'qaz@001';
+
+describe('onNameLookup', () => {
+  it('returns resolved address if domain', async () => {
+    const request = {
+      domain: DOMAIN_MOCK,
+      chainId: CHAIN_ID_MOCK,
+    };
+
+    expect(await onNameLookup(request)).toStrictEqual({
+      resolvedAddresses: [
+        {
+          resolvedAddress: ADDRESS_MOCK,
+          protocol: PROTOCOL_NAME,
+          domainName: DOMAIN_MOCK,
+        },
+      ],
+    });
+  });
+
+  it('returns null address if domain is not valid - less then 3 symbols', async () => {
+    const request = {
+      domain: NON_VALID_SHORT_DOMAIN_MOCK,
+      chainId: CHAIN_ID_MOCK,
+    };
+
+    expect(await onNameLookup(request)).toBeNull();
+  });
+
+  it('returns null address if domain is not valid - more then 64 symbols', async () => {
+    const request = {
+      domain: NON_VALID_LONG_DOMAIN_MOCK,
+      chainId: CHAIN_ID_MOCK,
+    };
+
+    expect(await onNameLookup(request)).toBeNull();
+  });
+
+  it('returns null address if domain is not valid - has dashes on start or end', async () => {
+    const request = {
+      domain: NON_VALID_DASH_DOMAIN_MOCK,
+      chainId: CHAIN_ID_MOCK,
+    };
+
+    expect(await onNameLookup(request)).toBeNull();
+  });
+
+  it('returns null address if domain is not exist', async () => {
+    const request = {
+      domain: DOMAIN_NOT_EXISTS,
+      chainId: CHAIN_ID_MOCK,
+    };
+
+    expect(await onNameLookup(request)).toBeNull();
+  });
+
+  it('returns null address if chain is not exist on list', async () => {
+    const request = {
+      domain: DOMAIN_MOCK,
+      chainId: CHAIN_ID_NOT_EXIST_IN_A_LIST,
+    };
+
+    expect(await onNameLookup(request)).toBeNull();
+  });
+
+  it('returns null if no domain or address', async () => {
+    const request = {
+      chainId: CHAIN_ID_MOCK,
+    };
+
+    // @ts-expect-error - Testing invalid request.
+    expect(await onNameLookup(request)).toBeNull();
   });
 });
