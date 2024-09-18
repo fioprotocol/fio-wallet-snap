@@ -1,7 +1,7 @@
 {
   "name": "@fioprotocol/fio-wallet-snap",
-  "version": "1.0.2",
-  "description": "The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs.",
+  "version": "1.1.0",
+  "description": "The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs. FIO Wallet SNAP also supports FIO Handle resolution inside MetaMask.",
   "repository": {
     "type": "git",
     "url": "https://github.com/fioprotocol/fio-wallet-snap.git"
@@ -27,8 +27,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "@metamask/key-tree": "9.0.0",
-    "@metamask/snaps-sdk": "1.2.0",
+    "@metamask/key-tree": "9.1.2",
+    "@metamask/snaps-sdk": "6.3.0",
     "bigi": "1.4.2",
     "bip39": "3.1.0",
     "browserify-aes": "1.2.0",
@@ -44,13 +44,13 @@
   },
   "devDependencies": {
     "@jest/globals": "29.5.0",
-    "@metamask/auto-changelog": "3.4.2",
-    "@metamask/eslint-config": "12.0.0",
-    "@metamask/eslint-config-jest": "12.0.0",
-    "@metamask/eslint-config-nodejs": "12.0.0",
-    "@metamask/eslint-config-typescript": "12.0.0",
-    "@metamask/snaps-cli": "3.0.3",
-    "@metamask/snaps-jest": "4.0.1",
+    "@metamask/auto-changelog": "3.4.4",
+    "@metamask/eslint-config": "13.0.0",
+    "@metamask/eslint-config-jest": "13.0.0",
+    "@metamask/eslint-config-nodejs": "13.0.0",
+    "@metamask/eslint-config-typescript": "13.0.0",
+    "@metamask/snaps-cli": "6.3.1",
+    "@metamask/snaps-jest": "8.3.0",
     "@types/bigi": "1.4.5",
     "@types/create-hash": "1.2.6",
     "@types/create-hmac": "1.1.3",

@@ -1,10 +1,12 @@
-import type { OnRpcRequestHandler } from '@metamask/snaps-sdk';
+import type { OnRpcRequestHandler, OnNameLookupHandler } from '@metamask/snaps-sdk';
 
 import type { RequestParams, RequestParamsTranasction } from './types';
 import { getPublicKey } from './utils/getKeys';
 import { signTransaction } from './utils/transaction/sign-transaction';
 import { signNonce } from './utils/signNonce';
 import { decryptContent } from './utils/encrypt/decrypt-fio';
+
+import { nameLookup } from './utils/nameLookup';
 
 export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
   const requestParams = request?.params as RequestParams | RequestParamsTranasction;
@@ -38,3 +40,5 @@ export const onRpcRequest: OnRpcRequestHandler = async ({ request }) => {
       throw new Error('Method not found.');
   }
 };
+
+export const onNameLookup: OnNameLookupHandler = async (request) => await nameLookup(request);

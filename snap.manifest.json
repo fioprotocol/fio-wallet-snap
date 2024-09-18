@@ -1,13 +1,13 @@
 {
-  "version": "1.0.2",
-  "description": "The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs.",
+  "version": "1.1.0",
+  "description": "The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs. FIO Wallet SNAP also supports FIO Handle resolution inside MetaMask.",
   "proposedName": "FIO Wallet",
   "repository": {
     "type": "git",
     "url": "https://github.com/fioprotocol/fio-wallet-snap.git"
   },
   "source": {
-    "shasum": "b6Z0SYw5x5yYEYu1TiguPRbRV/izLsjK0FFJ/+strwg=",
+    "shasum": "WMn/rR/4nyz0J+hVafcDYOt1Vpv0iWVrpJAD8N3ruI4=",
     "location": {
       "npm": {
         "filePath": "dist/bundle.js",
@@ -19,7 +19,6 @@
   },
   "initialPermissions": {
     "snap_dialog": {},
-    "snap_manageState": {},
     "snap_getBip44Entropy": [
       {
         "coinType": 235
@@ -29,7 +28,25 @@
       "dapps": true,
       "snaps": false
     },
-    "endowment:network-access": {}
+    "endowment:network-access": {},
+    "endowment:name-lookup": {
+      "chains": [
+        "eip155:1",
+        "eip155:10",
+        "eip155:56",
+        "eip155:61",
+        "eip155:137",
+        "eip155:324",
+        "eip155:1101",
+        "eip155:5000",
+        "eip155:8453",
+        "eip155:42161",
+        "eip155:42220",
+        "eip155:43114",
+        "eip155:59144",
+        "eip155:7777777"
+      ]
+    }
   },
   "manifestVersion": "0.1"
 }
