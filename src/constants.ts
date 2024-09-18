@@ -17,6 +17,8 @@ export const FIO_ENVIRONMENT_CHAIN_NAMES = {
   [FIO_CHAIN_ID.TESTNET]: 'FIO Testnet',
 };
 
+export const DEFAULT_FIO_API_URL = 'https://chain.fio.net';
+
 export const PROTOCOL_NAME = 'FIO Handle'; 
 
 export const CHAIN_CODES_AND_TOKEN_CODES_BY_NETWORK: { [key: string]: {

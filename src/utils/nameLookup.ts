@@ -1,6 +1,6 @@
 import { AddressLookupArgs, AddressLookupResult, DomainLookupArgs, DomainLookupResult } from '@metamask/snaps-sdk';
 
-import { CHAIN_CODES_AND_TOKEN_CODES_BY_NETWORK, PROTOCOL_NAME } from '../constants';
+import { CHAIN_CODES_AND_TOKEN_CODES_BY_NETWORK, DEFAULT_FIO_API_URL, PROTOCOL_NAME } from '../constants';
 import { validateFioHandle } from './validation/fio';
 import { getPublicAddressByFioHandle } from './chain/chain-get-info';
 
@@ -17,7 +17,7 @@ export const nameLookup = async (request: AddressLookupArgs | DomainLookupArgs):
 
     try {
       const publicAddress = await getPublicAddressByFioHandle({
-        apiUrl: 'https://fio.blockpane.com',
+        apiUrl: DEFAULT_FIO_API_URL,
         chainCode,
         fioHandle: domain,
         tokenCode,
