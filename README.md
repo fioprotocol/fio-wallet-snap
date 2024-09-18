@@ -1,6 +1,6 @@
 # FIO Wallet Snap
 
-The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users  register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs.
+The FIO Wallet SNAP lets every Metamask user self-custody their FIO identity and gain access to the FIO App without setting up new accounts or passwords. The FIO App lets MetaMask users  register and link their FIO Handle, as well as send and receive FIO Requests and sign NFTs. FIO Wallet SNAP also supports FIO Handle resolution inside MetaMask.
 
 ## Testing
 
